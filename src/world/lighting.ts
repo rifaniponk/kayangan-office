@@ -17,7 +17,7 @@ export function buildLighting(sceneRoot: THREE.Group): Lighting {
   const group = new THREE.Group();
   group.name = "lighting";
 
-  const hemi = new THREE.HemisphereLight(PALETTE.skySoft, PALETTE.groundWarm, 1.15);
+  const hemi = new THREE.HemisphereLight(PALETTE.skySoft, PALETTE.groundWarm, 1.05);
   group.add(hemi);
 
   const sun = new THREE.DirectionalLight(PALETTE.sunWarm, 2.7);
@@ -36,7 +36,9 @@ export function buildLighting(sceneRoot: THREE.Group): Lighting {
   group.add(sun.target);
 
   const setQuality = (mode: QualityMode): void => {
-    const size = mode === "high" ? 1024 : 512; // shadow rasterisation dominates llvmpipe
+    // 2048² keeps grounded contact shadows believable; casters are now
+    // restricted (~9 meshes), so the shadow pass stays cheap.
+    const size = mode === "high" ? 2048 : 1024;
     if (sun.shadow.mapSize.width !== size) {
       sun.shadow.map?.dispose();
       sun.shadow.map = null as unknown as THREE.WebGLRenderTarget;

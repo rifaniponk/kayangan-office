@@ -26,8 +26,8 @@ export function buildBackdrop(kit: MaterialKit): Backdrop {
     map = loader.load("/assets/world/cloud-horizon.webp");
     map.colorSpace = THREE.SRGBColorSpace;
     skyMat = new THREE.MeshBasicMaterial({ map, toneMapped: false, color: 0xe2e6ea, fog: false }); // fog:false keeps the horizon art out of the fog wash
-    sky = new THREE.Mesh(new THREE.PlaneGeometry(320, 60), skyMat);
-    sky.position.set(0, 18, -120); // horizon band only; upper sky is scene.background
+    sky = new THREE.Mesh(new THREE.PlaneGeometry(320, 86), skyMat);
+    sky.position.set(0, 22, -120); // horizon + upper sky band; adds dark-sky contrast
     group.add(sky);
   }
 
