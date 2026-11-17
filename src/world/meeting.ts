@@ -33,6 +33,15 @@ export function buildMeeting(kit: MaterialKit, geo: GeoCache): MeetingZone {
   pedestal.position.set(tableX, 0.38, tableZ);
   pedestal.castShadow = true;
   group.add(pedestal);
+
+  // Pendant lamp over the table: bronze cord + warm bulb.
+  const cord = new THREE.Mesh(geo.cyl(0.02, 0.02, 0.9, 8), kit.bronzeDark);
+  cord.position.set(tableX, 2.2, tableZ);
+  group.add(cord);
+  const bulb = new THREE.Mesh(geo.sphere(0.12, 8, 6), kit.glow);
+  bulb.position.set(tableX, 1.72, tableZ);
+  bulb.name = "pendant-bulb";
+  group.add(bulb);
   colliders.push({ x: tableX, z: tableZ, width: 2.4, depth: 1.3 });
 
   // Four chairs at the long ends of the table, facing the tabletop, leaving
