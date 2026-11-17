@@ -35,6 +35,13 @@ export function buildMeeting(kit: MaterialKit, geo: GeoCache): MeetingZone {
   group.add(pedestal);
   colliders.push({ x: tableX, z: tableZ, width: 2.4, depth: 1.3 });
 
+  // Teal rug under the table so the pod reads as its own zone.
+  const rug = new THREE.Mesh(geo.box(2.6, 0.03, 1.7), kit.tealDeep);
+  rug.position.set(tableX, 0.016, tableZ);
+  rug.receiveShadow = true;
+  rug.name = "meeting-rug";
+  group.add(rug);
+
   // Four chairs at the long ends of the table, facing the tabletop, leaving
   // walkable corridors on every side (audit-verified).
   const chairSpots: Array<[number, number]> = [

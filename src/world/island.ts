@@ -38,9 +38,7 @@ export function buildIsland(kit: MaterialKit, geo: GeoCache): THREE.Group {
   // Pale concrete stepping tiles breaking up the flat aisle floor.
   const tiles = instance(geo.box(1.4, 0.014, 1.4), kit.concrete, [
     [-1.6, 0.008, -7, 0],
-    [1.6, 0.008, -7, 0.2],
-    [-1.6, 0.008, 7, 0.4],
-    [1.6, 0.008, 7, 0],
+    [1.6, 0.008, 7, 0.2],
   ]);
   tiles.receiveShadow = true;
   tiles.name = "aisle-tiles";
