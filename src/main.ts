@@ -608,13 +608,8 @@ declare global {
       pause(paused: boolean): void;
       errors(): string[];
       metrics(): Record<string, number | null>;
-      /** Active character position, for on-screen-control checks. */
-  characterPosition(): { x: number; z: number } | null {
-    const position = this.characters?.getActivePosition();
-    return position ? { x: position.x, z: position.z } : null;
-  }
-
-  debug(): { activeIndex: number; position: { x: number; y: number; z: number }; nearestAnchor: string | null; state: string | null };
+      debug(): { activeIndex: number; position: { x: number; y: number; z: number }; nearestAnchor: string | null; state: string | null };
+      charactersPosition(): { x: number; z: number } | null;
       setQuality(mode: QualityMode): void;
       key(code: string, down: boolean): void;
       walkTo(id: string): Promise<string>;
