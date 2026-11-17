@@ -22,16 +22,16 @@ export function buildTerrace(kit: MaterialKit, geo: GeoCache): TerraceZone {
   const colliders: Collider[] = [];
 
   // Round table.
-  const top = new THREE.Mesh(geo.cyl(0.62, 0.62, 0.06, 24), kit.wood);
+  const top = new THREE.Mesh(geo.cyl(0.62, 0.62, 0.06, 28), kit.wood);
   top.position.set(9, 0.76, -8);
   top.castShadow = true;
   top.receiveShadow = true;
   group.add(top);
-  const pole = new THREE.Mesh(geo.cyl(0.12, 0.18, 0.72, 10), kit.bronzeDark);
+  const pole = new THREE.Mesh(geo.cyl(0.12, 0.18, 0.72, 12), kit.bronzeDark);
   pole.position.set(9, 0.39, -8);
   pole.castShadow = true;
   group.add(pole);
-  const foot = new THREE.Mesh(geo.cyl(0.42, 0.5, 0.05, 18), kit.bronzeDark);
+  const foot = new THREE.Mesh(geo.cyl(0.42, 0.5, 0.05, 22), kit.bronzeDark);
   foot.position.set(9, 0.05, -8);
   group.add(foot);
   colliders.push({ x: 9, z: -8, width: 1.3, depth: 1.3 });
@@ -39,7 +39,7 @@ export function buildTerrace(kit: MaterialKit, geo: GeoCache): TerraceZone {
   // Two slatted wood chairs facing the table.
   const seatGeo = geo.box(0.46, 0.07, 0.46);
   const backGeo = geo.box(0.46, 0.52, 0.06);
-  const legGeo = geo.cyl(0.04, 0.04, 0.44, 6);
+  const legGeo = geo.cyl(0.04, 0.04, 0.44, 8);
   const spots: Array<[number, number, number]> = [
     [6.2, -7.2, Math.PI / 2], // west chair, faces +x
     [10.9, -8.6, -Math.PI / 2], // east chair, faces -x
@@ -79,7 +79,7 @@ export function buildTerrace(kit: MaterialKit, geo: GeoCache): TerraceZone {
       foliage.push([x + (rand() - 0.5) * 0.5, 0.7 + rand() * 0.28, z + (rand() - 0.5) * 0.5, rand() * Math.PI]);
     }
   }
-  const leaves = instance(geo.sphere(0.22, 8, 6), kit.moss, foliage, true);
+  const leaves = instance(geo.sphere(0.22, 10, 8), kit.moss, foliage, true);
   group.add(leaves);
   for (const [x, z] of planterSpots) colliders.push({ x, z, width: 0.95, depth: 0.95 });
 

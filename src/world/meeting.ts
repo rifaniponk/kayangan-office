@@ -58,7 +58,7 @@ export function buildMeeting(kit: MaterialKit, geo: GeoCache): MeetingZone {
   const stand = new THREE.Mesh(geo.box(0.08, 1.5, 0.08), kit.bronzeDark);
   stand.position.set(boardX, 0.75, boardZ);
   group.add(stand);
-  const base = new THREE.Mesh(geo.cyl(0.3, 0.34, 0.06, 16), kit.bronzeDark);
+  const base = new THREE.Mesh(geo.cyl(0.3, 0.34, 0.06, 20), kit.bronzeDark);
   base.position.set(boardX, 0.05, boardZ);
   group.add(base);
   const board = new THREE.Mesh(geo.box(1.5, 0.95, 0.05), kit.screenBoard);

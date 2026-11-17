@@ -72,7 +72,7 @@ export function buildLounge(kit: MaterialKit, geo: GeoCache): LoungeZone {
       [0.5, 0.22, 0.28, 0],
     ]),
   );
-  const cup = new THREE.Mesh(geo.cyl(0.06, 0.05, 0.13, 8), kit.stone);
+  const cup = new THREE.Mesh(geo.cyl(0.06, 0.05, 0.13, 10), kit.stone);
   cup.position.set(-0.3, 0.53, 0.1);
   cup.castShadow = true;
   table.add(cup);
@@ -112,15 +112,15 @@ export function buildLounge(kit: MaterialKit, geo: GeoCache): LoungeZone {
   // Floor lamp.
   const lamp = new THREE.Group();
   lamp.position.set(12.4, 0, 8.8);
-  const pole = new THREE.Mesh(geo.cyl(0.03, 0.03, 1.4, 6), kit.bronze);
+  const pole = new THREE.Mesh(geo.cyl(0.03, 0.03, 1.4, 8), kit.bronze);
   pole.position.y = 0.7;
   lamp.add(pole);
-  const shade = new THREE.Mesh(geo.cyl(0.16, 0.24, 0.22, 8), kit.stone);
+  const shade = new THREE.Mesh(geo.cyl(0.16, 0.24, 0.22, 12), kit.stone);
   shade.position.y = 1.45;
   shade.castShadow = true;
   lamp.add(shade);
   group.add(lamp);
-  group.add(instance(geo.sphere(0.11, 6, 5), kit.glow, [[12.4, 1.36, 8.8, 0]]));
+  group.add(instance(geo.sphere(0.11, 8, 6), kit.glow, [[12.4, 1.36, 8.8, 0]]));
   colliders.push({ x: 12.4, z: 8.8, width: 0.5, depth: 0.5 });
 
   return {

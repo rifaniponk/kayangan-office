@@ -56,7 +56,7 @@ export function buildIsland(kit: MaterialKit, geo: GeoCache): THREE.Group {
   group.add(undersideMesh);
 
   // Hanging rock roots below the deck for silhouette depth.
-  const rootGeo = geo.cyl(0.15, 3.1, 4.6, 10); // narrow tip downward after rotation
+  const rootGeo = geo.cyl(0.15, 3.1, 4.6, 12); // narrow tip downward after rotation
   const roots: Array<[number, number, number, number]> = [
     [-8.5, -7.6, 4.5, 0.3],
     [7.5, -7.2, -6.0, 1.1],
@@ -71,7 +71,7 @@ export function buildIsland(kit: MaterialKit, geo: GeoCache): THREE.Group {
   }
 
   // Central bulge under the deck so the underside reads as one rock mass.
-  const bulge = new THREE.Mesh(geo.sphere(3, 12, 8), kit.rock);
+  const bulge = new THREE.Mesh(geo.sphere(3, 16, 10), kit.rock);
   bulge.scale.set(2.4, 1.6, 2.2);
   bulge.position.y = -6.2;
   group.add(bulge);

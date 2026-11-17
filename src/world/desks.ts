@@ -37,9 +37,9 @@ export function buildChairs(
   const seatGeo = geo.box(0.48, 0.09, 0.48);
   const backGeo = geo.box(0.48, 0.55, 0.08);
   const armGeo = geo.box(0.07, 0.34, 0.44);
-  const poleGeo = geo.cyl(0.05, 0.05, 0.42, 8);
-  const baseGeo = geo.cyl(0.28, 0.3, 0.05, 10);
-  const wheelGeo = geo.cyl(0.06, 0.06, 0.05, 8);
+  const poleGeo = geo.cyl(0.05, 0.05, 0.42, 10);
+  const baseGeo = geo.cyl(0.28, 0.3, 0.05, 12);
+  const wheelGeo = geo.cyl(0.06, 0.06, 0.05, 10);
 
   const rot = spots.map(([x, z, r]) => [x, z, r] as [number, number, number]);
 
@@ -132,7 +132,7 @@ export function buildDesks(kit: MaterialKit, geo: GeoCache): DeskZone {
   group.add(instance(legGeo, kit.bronze, legT, true));
   group.add(instance(drawerGeo, kit.woodDark, drawerT, true));
   group.add(instance(geo.box(0.45, 0.035, 0.18), kit.concrete, kbT));
-  group.add(instance(geo.cyl(0.055, 0.05, 0.12, 12), kit.teal, cupT));
+  group.add(instance(geo.cyl(0.055, 0.05, 0.12, 14), kit.teal, cupT));
 
   // Books: instanced but density-controlled by quality mode.
   const bookGeo = geo.box(0.22, 0.05, 0.16);
@@ -150,7 +150,7 @@ export function buildDesks(kit: MaterialKit, geo: GeoCache): DeskZone {
   // Monitors: individual screens so the interaction can toggle them.
   const screenGeo = geo.box(0.58, 0.36, 0.04);
   const bezelGeo = geo.box(0.66, 0.44, 0.03);
-  const standGeo = geo.cyl(0.03, 0.09, 0.2, 8);
+  const standGeo = geo.cyl(0.03, 0.09, 0.2, 10);
   const bezelT: Array<[number, number, number, number]> = [];
   const screens: THREE.Mesh[] = [];
   for (const [x, z, r] of centers) {
@@ -172,8 +172,8 @@ export function buildDesks(kit: MaterialKit, geo: GeoCache): DeskZone {
   group.add(instance(bezelGeo, kit.bronze, bezelT, true));
 
   // Desk lamps: bronze arm + warm shade, on the far corner.
-  const armGeo = geo.cyl(0.02, 0.02, 0.42, 6);
-  const shadeGeo = geo.cyl(0.06, 0.14, 0.12, 9);
+  const armGeo = geo.cyl(0.02, 0.02, 0.42, 8);
+  const shadeGeo = geo.cyl(0.06, 0.14, 0.12, 12);
   const bulbT: Array<[number, number, number, number]> = [];
   for (const [x, z, r] of centers) {
     const ux = -Math.sin(r);
@@ -190,7 +190,7 @@ export function buildDesks(kit: MaterialKit, geo: GeoCache): DeskZone {
     group.add(shade);
     bulbT.push([lx - 0.12, 1.11, lz, 0]);
   }
-  group.add(instance(geo.sphere(0.07, 6, 5), kit.glow, bulbT));
+  group.add(instance(geo.sphere(0.07, 8, 6), kit.glow, bulbT));
 
   // Chairs sit between the facing rows.
   const chairSpots: Array<[number, number, number]> = [
