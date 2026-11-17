@@ -102,7 +102,8 @@ const report = await runPage(
     push("terrace lookout works", terraceWalk.status.includes("arrived") && String(terraceToast).length > 0, `${terraceWalk.status} blocked=${terraceWalk.trace.filter((t) => t.blocked).length} / ${terraceToast}`);
 
     // On-screen movement pad drives the same path as WASD.
-    const beforePad = JSON.parse(await session.evaluate("JSON.stringify(window.KAYANGAN.debug ? window.KAYANGAN.debug() : {})"));
+    await session.evaluate("window.KAYANGAN.restart()");
+    await wait(400);
     const padPos = await session.evaluate("JSON.stringify(window.KAYANGAN.charactersPosition?.() ?? null)");
     const padBefore = padPos === null ? null : JSON.parse(padPos);
     await session.evaluate(
@@ -148,7 +149,11 @@ const report = await runPage(
     const padInteract = await session.runAsync("window.KAYANGAN.walkTo('desk-monitor')").then((r) => r.value);
     await session.evaluate("document.getElementById('toast').textContent = ''");
     await session.evaluate(
-      "(() => { const b = document.getElementById('interact-button'); b.dispatchEvent(new PointerEvent('pointerdown', { pointerId: 1, bubbles: true })); b.dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, bubbles: true })); })()",
+      "document.getElementById('interact-button').dispatchEvent(new PointerEvent('pointerdown', { pointerId: 1, bubbles: true }))",
+    );
+    await wait(400);
+    await session.evaluate(
+      "document.getElementById('interact-button').dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, bubbles: true }))",
     );
     await wait(900);
     const padToast = await session.evaluate("document.getElementById('toast').textContent");
