@@ -224,6 +224,15 @@ class App {
     };
   }
 
+  /** Small windows get a closer rig so avatars stay legible (>=60 px tall). */
+  private rigDistance(): number {
+    // The canvas keeps its last size until a real resize event, so read the
+    // viewport itself — that is what the small-window legibility rule needs.
+    const height = window.innerHeight || this.stage?.renderer.domElement.clientHeight || 720;
+    const scale = Math.max(0.5, Math.min(1.15, height / 720));
+    return Math.max(CAMERA_BOUNDS.minDistance, Math.min(CAMERA_BOUNDS.maxDistance, this.cameraDistance * scale));
+  }
+
   /** Hide a named world group so QA can attribute per-frame cost. */
   debugVisible(name: string, visible: boolean): boolean {
     const group = this.world?.result.group;
@@ -247,7 +256,7 @@ class App {
   camera(): { distance: number; yaw: number; polar: number; x: number; y: number; z: number } {
     const position = this.stage?.camera.position ?? new THREE.Vector3();
     return {
-      distance: this.cameraDistance,
+      distance: this.rigDistance(),
       yaw: this.cameraYaw,
       polar: this.cameraPolar,
       x: position.x,
@@ -429,9 +438,10 @@ class App {
     wanted.set(anchor.x, anchor.y + 1.1, anchor.z);
     const blend = Math.min(1, delta * 5);
     this.cameraTarget.lerp(wanted, blend);
-    const x = this.cameraTarget.x + Math.sin(this.cameraYaw) * this.cameraDistance * Math.sin(this.cameraPolar);
-    const z = this.cameraTarget.z + Math.cos(this.cameraYaw) * this.cameraDistance * Math.sin(this.cameraPolar);
-    const y = Math.max(CAMERA_BOUNDS.minHeight, this.cameraTarget.y + this.cameraDistance * Math.cos(this.cameraPolar));
+    const rig = this.rigDistance();
+    const x = this.cameraTarget.x + Math.sin(this.cameraYaw) * rig * Math.sin(this.cameraPolar);
+    const z = this.cameraTarget.z + Math.cos(this.cameraYaw) * rig * Math.sin(this.cameraPolar);
+    const y = Math.max(CAMERA_BOUNDS.minHeight, this.cameraTarget.y + rig * Math.cos(this.cameraPolar));
     // Keep the rig over the island so the office stays readable.
     camera.position.set(
       Math.max(-DECK.x - 6, Math.min(DECK.x + 6, x)),
