@@ -40,6 +40,16 @@ export function outsideDeck(px: number, pz: number, bounds: DeckBounds): boolean
 }
 
 /**
+ * Safety net: if a character somehow ends up off the walkable surface
+ * (world rebuilt with new rim colliders, debug teleport, etc.), snap it
+ * back to its spawn point so the run stays playable.
+ */
+export function ensureOnDeck(px: number, pz: number, bounds: DeckBounds, spawn: Vec2): Vec2 {
+  if (outsideDeck(px, pz, bounds)) return { x: spawn.x, z: spawn.z };
+  return { x: px, z: pz };
+}
+
+/**
  * Move by (dx, dz) with slide resolution: try both axes, then each axis
  * alone, then stay put. Result is always deck-clamped. Displacement is
  * frame-rate independent because callers scale dx/dz by deltaSeconds.

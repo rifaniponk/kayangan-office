@@ -3,6 +3,7 @@ import {
   CHARACTER_RADIUS,
   cameraRelativeAxis,
   clampToDeck,
+  ensureOnDeck,
   lerpAngle,
   nearestInteractable,
   overlapsAny,
@@ -35,6 +36,12 @@ describe("collision", () => {
     expect(Math.abs(p.x)).toBeLessThanOrEqual(bounds.halfX - bounds.inset);
     expect(Math.abs(p.z)).toBeLessThanOrEqual(bounds.halfZ - bounds.inset);
     expect(outsideDeck(p.x, p.z, bounds)).toBe(false);
+  });
+
+  it("snaps an escaped character back to its spawn", () => {
+    const spawn = { x: -3, z: 6 };
+    expect(ensureOnDeck(100, 100, bounds, spawn)).toEqual({ x: -3, z: 6 });
+    expect(ensureOnDeck(0, 0, bounds, spawn)).toEqual({ x: 0, z: 0 });
   });
 
   it("pushes a spawn inside a prop out to free space", () => {

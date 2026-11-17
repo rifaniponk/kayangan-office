@@ -5,9 +5,9 @@ import { buildAvatar, type Avatar } from "../characters/index.js";
 import {
   CHARACTER_RADIUS,
   cameraRelativeAxis,
+  ensureOnDeck,
   lerpAngle,
   nearestInteractable,
-  outsideDeck,
   resolveSafeSpawn,
   slideMove,
   type Vec2,
@@ -94,12 +94,9 @@ export function createCharacters(world: World, input: InputSource): CharacterSys
 
       if (moving) {
         const moved = slideMove(pos.x, pos.z, dir.x * speed * dt, dir.z * speed * dt, colliders, CHARACTER_RADIUS, DECK_BOUNDS);
-        pos.x = moved.x;
-        pos.z = moved.z;
-        if (outsideDeck(pos.x, pos.z, DECK_BOUNDS)) {
-          pos.x = spawns[activeIndex]!.x;
-          pos.z = spawns[activeIndex]!.z;
-        }
+        const safe = ensureOnDeck(moved.x, moved.z, DECK_BOUNDS, spawns[activeIndex]!);
+        pos.x = safe.x;
+        pos.z = safe.z;
         facingYaw[activeIndex] = lerpAngle(facingYaw[activeIndex]!, Math.atan2(dir.x, dir.z), 1 - Math.exp(-dt * 12));
       }
 
