@@ -14,6 +14,7 @@ const P = PALETTE.guardian;
 export function buildGuardian(): Avatar {
   const root = new THREE.Group();
   root.name = "character-guardian";
+  root.scale.setScalar(0.8); // measured silhouette 1.83 m -> ~1.46 m per 1.1-1.5 m contract
 
   const stoneMat = standard(P.stone, { roughness: 0.95, metalness: 0.02 });
   const stoneLightMat = standard(P.stoneLight, { roughness: 0.95, metalness: 0.02 });
@@ -71,7 +72,7 @@ export function buildGuardian(): Avatar {
 
   return {
     id: "guardian",
-    height: 1.6,
+    height: 1.46,
     root,
     animate(state: CharacterState, clock: number, dt: number, speedRatio: number, gesture: number): void {
       const crouch = gestureArc(gesture);
