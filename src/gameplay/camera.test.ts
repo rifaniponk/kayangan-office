@@ -100,6 +100,12 @@ describe("follow camera stays usable everywhere", () => {
       const dist = Math.hypot(character.x - spot.x, character.z - spot.z);
       const radius = world.result.interactables.find((a) => a.id === spot.label)?.radius ?? 1.6;
       if (!spot.label.startsWith("spawn")) {
+        if (dist <= radius) {
+          // Standable points inside the anchor radius must show the prompt.
+          expect(sys.getNearestInteractable?.()?.id, `${spot.label} prompt missing`).toBe(spot.label);
+        } else {
+          console.log(`${names[index]} ${spot.label}: blocked at ${dist.toFixed(2)} m > r=${radius}, prompt not expected`);
+        }
         if (dist > radius + 0.5) {
           console.log(`${names[index]} ${spot.label}: stuck at (${character.x.toFixed(2)}, ${character.z.toFixed(2)}) dist=${dist.toFixed(2)} radius=${radius}`);
         }
