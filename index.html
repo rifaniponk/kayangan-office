@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kayangan Office — a floating office above the clouds</title>
+    <meta
+      name="description"
+      content="Third-person Three.js office on a floating island above a cloud sea, with four nonhuman playable characters."
+    />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <canvas id="viewport" aria-label="Kayangan Office 3D viewport"></canvas>
+
+    <div id="boot" class="panel boot-panel" role="group" aria-labelledby="boot-title">
+      <h1 id="boot-title">Kayangan Office</h1>
+      <p class="muted">A shared office on a floating island, above the clouds.</p>
+      <div id="character-picker" class="picker"></div>
+      <button id="play-button" class="primary" type="button">Play</button>
+      <p class="hint">
+        <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows to move ·
+        <kbd>1</kbd>–<kbd>4</kbd> switch characters · <kbd>E</kbd> interact · drag to orbit ·
+        wheel to zoom · <kbd>P</kbd> pause · <kbd>R</kbd> restart · <kbd>H</kbd> stats
+      </p>
+    </div>
+
+    <div id="hud" class="panel hud hidden" role="status" aria-live="polite">
+      <div class="hud-row"><span class="hud-label">Active</span><span id="hud-character">Cloud</span></div>
+      <div class="hud-row"><span class="hud-label">Zone</span><span id="hud-zone">Central aisle</span></div>
+      <div class="hud-row"><span class="hud-label">Prompt</span><span id="hud-prompt">Walk near a marked object</span></div>
+    </div>
+
+    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+    <div class="panel toolbar" aria-label="Game controls">
+      <button id="pause-button" type="button">Pause</button>
+      <button id="restart-button" type="button">Restart</button>
+      <label class="quality-label" for="quality-select">Graphics</label>
+      <select id="quality-select" aria-label="Graphics quality">
+        <option value="high">High</option>
+        <option value="low">Low</option>
+      </select>
+      <button id="stats-button" type="button">Stats</button>
+    </div>
+
+    <div id="stats" class="panel stats hidden" aria-label="Performance stats">
+      <div class="stats-grid">
+        <span>fps</span><span id="stat-fps">–</span>
+        <span>frame p95</span><span id="stat-p95">–</span>
+        <span>draw calls</span><span id="stat-calls">–</span>
+        <span>triangles</span><span id="stat-tris">–</span>
+        <span>textures</span><span id="stat-textures">–</span>
+        <span>heap</span><span id="stat-heap">–</span>
+      </div>
+    </div>
+
+    <div id="error-banner" class="panel error hidden"></div>
+
+    <!-- QA harness reads this block; keep it valid JSON. -->
+    <pre id="qa-report" class="hidden">{}</pre>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
