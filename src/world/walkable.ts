@@ -103,6 +103,24 @@ function reachableFrom(
   });
 }
 
+/** Distance from an anchor to the nearest standable point (≥ RADIUS from
+ * every collider, inside the deck). Movement can only trigger the prompt if
+ * this is within the anchor radius. */
+export function nearestStandableDistance(
+  anchor: { x: number; z: number },
+  colliders: Collider[],
+): number {
+  let best = Infinity;
+  for (let x = -DECK.halfX + 0.05; x <= DECK.halfX - 0.05; x += 0.05) {
+    for (let z = -DECK.halfZ + 0.05; z <= DECK.halfZ - 0.05; z += 0.05) {
+      if (blocked(x, z, colliders)) continue;
+      const d = Math.hypot(x - anchor.x, z - anchor.z);
+      if (d < best) best = d;
+    }
+  }
+  return best;
+}
+
 export function auditWalkability(
   colliders: Collider[],
   spawns: Array<{ x: number; z: number }>,
