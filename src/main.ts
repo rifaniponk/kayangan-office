@@ -176,6 +176,19 @@ class App {
     return { status: `${id}:${status}`, trace };
   }
 
+  /** Camera rig state, for QA checks that drag and wheel must move the rig. */
+  camera(): { distance: number; yaw: number; polar: number; x: number; y: number; z: number } {
+    const position = this.stage?.camera.position ?? new THREE.Vector3();
+    return {
+      distance: this.cameraDistance,
+      yaw: this.cameraYaw,
+      polar: this.cameraPolar,
+      x: position.x,
+      y: position.y,
+      z: position.z,
+    };
+  }
+
   /** Read-only view used by the QA harness and the stats panel. */
   debug(): { activeIndex: number; position: { x: number; y: number; z: number }; nearestAnchor: string | null; state: string | null } {
     const position = this.characters?.getActivePosition() ?? new THREE.Vector3();
@@ -519,6 +532,7 @@ declare global {
       key(code: string, down: boolean): void;
       walkTo(id: string): Promise<string>;
       walkTrace(id: string): Promise<{ status: string; trace: Array<{ x: number; z: number; blocked: boolean }> }>;
+      camera(): { distance: number; yaw: number; polar: number; x: number; y: number; z: number };
     };
   }
 }
@@ -533,6 +547,7 @@ window.KAYANGAN = {
   debug: () => app.debug(),
   setQuality: (mode) => app.setQuality(mode),
   walkTo: (id) => app.walkTo(id),
+  camera: () => app.camera(),
   walkTrace: (id) => app.walkTrace(id),
   key: (code, down) =>
     window.dispatchEvent(

@@ -99,6 +99,28 @@ const report = await runPage(
     const terraceToast = await session.evaluate("document.getElementById('toast').textContent");
     push("terrace lookout works", terraceWalk.status.includes("arrived") && String(terraceToast).length > 0, `${terraceWalk.status} blocked=${terraceWalk.trace.filter((t) => t.blocked).length} / ${terraceToast}`);
 
+    // Camera rig responds to drag and wheel within the safe limits.
+    const beforeCam = JSON.parse(await session.evaluate("JSON.stringify(window.KAYANGAN.camera())"));
+    await session.evaluate(
+      "(() => { const c = document.getElementById('viewport'); const o = (t, x, y) => c.dispatchEvent(new PointerEvent(t, { pointerId: 1, clientX: x, clientY: y, bubbles: true })); o('pointerdown', 800, 400); o('pointermove', 980, 460); o('pointerup', 980, 460); })()",
+    );
+    await wait(300);
+    const dragged = JSON.parse(await session.evaluate("JSON.stringify(window.KAYANGAN.camera())"));
+    push(
+      "drag rotates the camera",
+      Math.abs(dragged.yaw - beforeCam.yaw) > 0.05 && Math.abs(dragged.polar - beforeCam.polar) > 0.01,
+      `yaw ${beforeCam.yaw.toFixed(2)} -> ${dragged.yaw.toFixed(2)}, polar ${beforeCam.polar.toFixed(2)} -> ${dragged.polar.toFixed(2)}`,
+    );
+    const zoomBefore = dragged.distance;
+    await session.evaluate("document.getElementById('viewport').dispatchEvent(new WheelEvent('wheel', { deltaY: -200, bubbles: true, cancelable: true }))");
+    await wait(300);
+    const zoomed = JSON.parse(await session.evaluate("JSON.stringify(window.KAYANGAN.camera())"));
+    push(
+      "wheel zooms within the clamp",
+      Math.abs(zoomed.distance - zoomBefore) > 0.4 && zoomed.distance >= 5 && zoomed.distance <= 26,
+      `distance ${zoomBefore.toFixed(2)} -> ${zoomed.distance.toFixed(2)}`,
+    );
+
     // Pause keeps positions still; resume continues.
     await session.evaluate("window.KAYANGAN.pause(true)");
     const pausedAt = await read(session);
