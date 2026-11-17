@@ -28,15 +28,16 @@ a real Chromium canvas instead; results are committed in `qa/art/probe-concept.j
 
 | Task | Owner | State | Evidence | Next action |
 | --- | --- | --- | --- | --- |
-| Git baseline + identity | C | done | `9817c73` author `rifaniponk <rifaniponk@users.noreply.github.com>` | — |
-| Scaffold, contracts, UI, QA harness | C | done | `03a1c3d`, `3227e6b`, `95db333` | keep tests green |
-| Island shell, lighting, rim colliders, spawns | A | in progress | `src/world/**`, backdrop WebP copied (21.5 KB) | fix tuple arity + `setQuality` arg |
-| Desk + meeting zones | A | pending | — | next slice after typecheck passes |
-| Lounge + terrace zones | A | pending | — | — |
-| Four avatars + animation states | B | in progress | `src/characters/*`, `src/gameplay/collision.ts` | publish `createCharacters` entry point |
-| Movement, collision slide, camera follow, reset | B | in progress | `src/gameplay/**` | wire into `CharacterSystem` |
-| Integration tests + route harness | C | in progress | `tests/*`, `qa/route.mjs` | run against real build |
-| Browser route + fps measurement | C | pending | — | run after A/B land |
+| Git baseline + identity | C | done | `9817c73`; all 15 commits authored `rifaniponk <rifaniponk@users.noreply.github.com>` | — |
+| Scaffold, contracts, UI, QA harness, README | C | done | `03a1c3d`, `3227e6b`, `539fc73`, `863cdb9`, `d1a1490`, `b2a50be` | keep tests green |
+| Island shell, four furnished zones, backdrop, interactions, quality modes | A | done (slice 2) | `755a9c0`, `a58b10e`; live page renders with 0 console errors | cut 273 renderable objects to ≤250, raise detail |
+| Walkability audit (aisle, doorways, routes) | A | in progress | `src/world/walkable.ts` (untracked) | prove with `npm run test` |
+| Four avatars + animation states | B | done (slice 2) | `95b00a6`, `9921b9d` | distinct idle/move/interact motion |
+| Movement, collision slide, camera follow, reset, regression tests | B | in progress | `7b25126`, `4b2c94b` | drive the live route, report anchor reach |
+| Integration tests + route harness | C | done | `f46933a`; 17 tests pass, 1 fails on A's draw-call budget | keep regression tests honest |
+| Browser render + frame measurement | C | in progress | see Measured results | full four-character route (running) |
+| Pause/restart/visibility/resize behaviour | C | done | `b2a50be` fixed rAF binding and tab resume | re-verify in Chromium |
+| Final acceptance checklist | C | pending | — | run after A/B slices land |
 
 ## Contract (published by C in `src/core/contracts.ts`)
 
