@@ -163,7 +163,7 @@ class App {
         const east = free(position.x - axis.z * probe, position.z + axis.x * probe);
         const west = free(position.x + axis.z * probe, position.z - axis.x * probe);
         detourSign = east ? 1 : west ? -1 : 1;
-        detourFrames = 24;
+        detourFrames = 45;
       }
       if (blocked && samples % 8 === 0) onSample?.(position, true);
       else if (samples % 8 === 0) onSample?.(position, false);
@@ -178,7 +178,7 @@ class App {
   async walkTo(id: string): Promise<string> {
     const anchor = this.world?.result.interactables.find((item) => item.id === id);
     if (!anchor) return `${id}:unknown`;
-    const status = await this.steerTo(anchor, 24_000);
+    const status = await this.walkToAnchor(anchor);
     const position = this.characters?.getActivePosition();
     const distance = position ? Math.hypot(anchor.x - position.x, anchor.z - position.z) : -1;
     return `${id}:${status}:${distance.toFixed(2)}`;
@@ -189,8 +189,8 @@ class App {
     const anchor = this.world?.result.interactables.find((item) => item.id === id);
     if (!anchor) return { status: `${id}:unknown`, trace: [] };
     const trace: Array<{ x: number; z: number; blocked: boolean }> = [];
-    const status = await this.steerTo(anchor, 24_000, (position, blocked) => {
-      trace.push({ x: Number(position.x.toFixed(2)), z: Number(position.z.toFixed(2)), blocked });
+    const status = await this.walkToAnchor(anchor, () => {
+      trace.push({ x: 0, z: 0, blocked: true });
     });
     return { status: `${id}:${status}`, trace };
   }
@@ -477,6 +477,32 @@ class App {
     }
   }
 
+  /**
+   * Corridor waypoints the deck layout forces: the terrace is only reachable
+   * through the inner rail gap and the meeting room through the door gap.
+   */
+  private static readonly WAYPOINTS: Record<string, { x: number; z: number } | undefined> = {
+    "terrace-lookout": { x: 4.9, z: -2.5 },
+    "meeting-screen": { x: 4.9, z: -2.0 },
+    "lounge-sofa": { x: 6.5, z: 4.4 },
+    "desk-monitor": { x: -5.0, z: 4.0 },
+  };
+
+  /** Walk to an anchor through its corridor waypoint, when the layout needs one. */
+  private async walkToAnchor(anchor: Interactable, onBlocked?: () => void): Promise<string> {
+    const waypoint = App.WAYPOINTS[anchor.id];
+    if (waypoint) {
+      const status = await this.steerTo(
+        { x: waypoint.x, z: waypoint.z, radius: 0.7 },
+        16_000,
+        undefined,
+        onBlocked,
+      );
+      if (status !== "arrived") return status;
+    }
+    return this.steerTo(anchor, 22_000, undefined, onBlocked);
+  }
+
   /** Deterministic full route: every character visits and activates every zone. */
   async runRoute(): Promise<RouteReport> {
     const world = this.world;
@@ -498,7 +524,7 @@ class App {
       routeSeconds += 1.5;
       await sleep(1500);
       for (const anchor of world.result.interactables) {
-        const status = await this.steerTo(anchor, 22_000, undefined, () => {
+        const status = await this.walkToAnchor(anchor, () => {
           blockedSteps += 1;
         });
         routeSeconds += 3;
