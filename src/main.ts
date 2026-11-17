@@ -514,11 +514,11 @@ class App {
   };
 
   /** Gate out of the zone a leg starts in, so exits use the same gaps as entry. */
-  private static readonly ZONE_GATES: Record<string, { x: number; z: number }> = {
-    desk: { x: -5.0, z: 4.0 },
-    meeting: { x: -6.0, z: -1.4 },
-    lounge: { x: 6.5, z: 4.4 },
-    terrace: { x: 4.9, z: -2.5 },
+  private static readonly ZONE_GATES: Record<string, { x: number; z: number; radius: number }> = {
+    desk: { x: -5.0, z: 4.0, radius: 0.7 },
+    meeting: { x: -6.0, z: -1.4, radius: 0.7 },
+    lounge: { x: 6.5, z: 4.4, radius: 0.7 },
+    terrace: { x: 4.9, z: -2.5, radius: 0.7 },
   };
 
   /** Walk to an anchor through its corridor waypoint, when the layout needs one. */
