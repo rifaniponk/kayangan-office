@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as THREE from "three";
 import { AVATAR_BUILDERS } from "./index.js";
+import type { Avatar } from "./parts.js";
 
 /**
  * Readability proof at the closest legal camera distances (1.1 m / 1.5 m),
@@ -10,7 +11,7 @@ import { AVATAR_BUILDERS } from "./index.js";
 const VIEWPORT = { width: 1280, height: 720 };
 const POLAR = 1.02; // main.ts cameraPolar default
 
-function screenHeightPx(build: () => { root: THREE.Group; dispose: () => void }, distance: number): number {
+function screenHeightPx(build: () => Avatar, distance: number): number {
   const avatar = build();
   avatar.animate("idle", 1, 1 / 60, 0, 0);
   avatar.root.updateMatrixWorld(true);
@@ -31,7 +32,7 @@ function screenHeightPx(build: () => { root: THREE.Group; dispose: () => void },
   return Math.abs(top.y - bottom.y) * (VIEWPORT.height / 2);
 }
 
-function castCoverage(build: () => { root: THREE.Group; dispose: () => void }): { casters: number; meshes: number } {
+function castCoverage(build: () => Avatar): { casters: number; meshes: number } {
   const avatar = build();
   let casters = 0;
   let meshes = 0;
