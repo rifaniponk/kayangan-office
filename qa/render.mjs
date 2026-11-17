@@ -17,6 +17,7 @@ const settleMs = Number(process.argv[5] ?? 4000);
 const report = await runPage(
   { port: 9333, url, timeoutMs: settleMs + 40_000 },
   async (session, stderr) => {
+    await session.waitFor()
     await session.evaluate(`window.KAYANGAN && window.KAYANGAN.start('${quality}')`);
     await new Promise((resolve) => setTimeout(resolve, settleMs));
     await session.call("Page.enable");
