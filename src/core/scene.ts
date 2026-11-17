@@ -38,7 +38,7 @@ export function createStage(canvas: HTMLCanvasElement, mode: QualityMode = "high
     const width = Math.max(1, canvas.clientWidth || window.innerWidth);
     const height = Math.max(1, canvas.clientHeight || window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, dpr));
-    renderer.setSize(width, height, false);
+    renderer.setSize(width, height);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
   }

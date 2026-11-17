@@ -62,6 +62,7 @@ class App {
   private drag: { x: number; y: number } | null = null;
   private frameClock = 0;
   private raf = 0;
+  private readonly loop = (now: number) => this.tick(now);
 
   constructor() {
     window.addEventListener("error", (event) => this.errors.push(event.message || "Unknown error"));
@@ -116,7 +117,10 @@ class App {
     this.paused = force ?? !this.paused;
     this.overlay.setPaused(this.paused);
     if (this.paused) cancelAnimationFrame(this.raf);
-    else this.tick(0);
+    else {
+      this.frameClock = 0;
+      this.raf = requestAnimationFrame(this.loop);
+    }
   }
 
   setQuality(mode: QualityMode): void {
@@ -177,7 +181,12 @@ class App {
     });
     window.addEventListener("blur", () => this.keys.clear());
     document.addEventListener("visibilitychange", () => {
-      if (document.hidden) this.keys.clear();
+      this.keys.clear();
+      if (document.hidden) cancelAnimationFrame(this.raf);
+      else if (this.playing && !this.paused) {
+        this.frameClock = 0;
+        this.raf = requestAnimationFrame(this.loop);
+      }
     });
     window.addEventListener("resize", () => this.stage?.resize());
     canvas.addEventListener("pointerdown", (event) => {
@@ -263,7 +272,7 @@ class App {
     this.followCamera(delta);
     this.render(elapsed);
     this.refreshHud();
-    this.raf = requestAnimationFrame(this.tick);
+    this.raf = requestAnimationFrame(this.loop);
   }
 
   private render(frameMs: number): void {
