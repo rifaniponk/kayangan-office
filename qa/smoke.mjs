@@ -67,7 +67,7 @@ const report = await runPage(
     );
 
     // Furniture blocking: walking into the desk cluster must stop short of it.
-    const deskWalk = await session.evaluate("window.KAYANGAN.walkTo('desk-monitor')", true);
+    const deskWalk = await session.runAsync("window.KAYANGAN.walkTo('desk-monitor')");
     const atDesk = await read(session);
     push("walks to the desk anchor and sees the prompt", deskWalk.includes("arrived") && atDesk.nearestAnchor === "desk-monitor", `${deskWalk} / prompt=${atDesk.nearestAnchor}`);
 
@@ -78,26 +78,26 @@ const report = await runPage(
     const toast = await session.evaluate("document.getElementById('toast').textContent");
     push("E activates the desk zone", typeof toast === "string" && toast.toLowerCase().includes("monitor"), toast);
 
-    const meetingWalk = await session.evaluate("window.KAYANGAN.walkTo('meeting-screen')", true);
+
     await session.evaluate("window.KAYANGAN.key('KeyE', true)");
     await wait(700);
     await session.evaluate("window.KAYANGAN.key('KeyE', false)");
     const meetingToast = await session.evaluate("document.getElementById('toast').textContent");
-    push("meeting room display changes", meetingWalk.includes("arrived") && String(meetingToast).toLowerCase().includes("display"), `${meetingWalk} / ${meetingToast}`);
+    push("meeting room display changes", meetingWalk.status.includes("arrived") && String(meetingToast).toLowerCase().includes("display"), `${meetingWalk.status} blocked=${meetingWalk.trace.filter(t => t.blocked).length} / ${meetingToast}`);
 
-    const loungeWalk = await session.evaluate("window.KAYANGAN.walkTo('lounge-sofa')", true);
+
     await session.evaluate("window.KAYANGAN.key('KeyE', true)");
     await wait(700);
     await session.evaluate("window.KAYANGAN.key('KeyE', false)");
     const loungeToast = await session.evaluate("document.getElementById('toast').textContent");
-    push("lounge sit/emote works", loungeWalk.includes("arrived") && String(loungeToast).length > 0, `${loungeWalk} / ${loungeToast}`);
+    push("lounge sit/emote works", loungeWalk.status.includes("arrived") && String(loungeToast).length > 0, `${loungeWalk.status} blocked=${loungeWalk.trace.filter(t => t.blocked).length} / ${loungeToast}`);
 
-    const terraceWalk = await session.evaluate("window.KAYANGAN.walkTo('terrace-lookout')", true);
+
     await session.evaluate("window.KAYANGAN.key('KeyE', true)");
     await wait(700);
     await session.evaluate("window.KAYANGAN.key('KeyE', false)");
     const terraceToast = await session.evaluate("document.getElementById('toast').textContent");
-    push("terrace lookout works", terraceWalk.includes("arrived") && String(terraceToast).length > 0, `${terraceWalk} / ${terraceToast}`);
+    push("terrace lookout works", terraceWalk.status.includes("arrived") && String(terraceToast).length > 0, `${terraceWalk.status} blocked=${terraceWalk.trace.filter(t => t.blocked).length} / ${terraceToast}`);
 
     // Pause keeps positions still; resume continues.
     await session.evaluate("window.KAYANGAN.pause(true)");
