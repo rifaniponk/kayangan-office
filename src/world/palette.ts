@@ -4,25 +4,25 @@
  * upholstery, soft sky light with warm morning sun.
  */
 export const PALETTE = {
-  deckStone: 0xc8c2b6,
-  concreteEdge: 0xbdb2a6,
-  rock: 0x6d6760,
+  deckStone: 0xd8d0c4,
+  concreteEdge: 0xcac0b2,
+  rock: 0x8a8072,
   rockDeep: 0x4c4742,
   bronze: 0xb07a3f,
   bronzeDark: 0x8a6032,
-  wood: 0x8b6c53,
+  wood: 0x99795d,
   woodDark: 0x6e5744,
   teal: 0x2f7d78,
   tealDeep: 0x245f58,
   glass: 0xcfe4f2,
   screenOff: 0x22303a,
   screenOn: 0x66d2c2,
-  moss: 0x5c7a4b,
-  soil: 0x5a4633,
+  moss: 0x6b885a,
+  soil: 0x69543d,
   cloudWhite: 0xdddae6,
   sunWarm: 0xffe2bd,
   skySoft: 0xcfe4f2,
-  groundWarm: 0x957e6a,
+  groundWarm: 0xa88d75,
 } as const;
 
 /** Deterministic PRNG (mulberry32) so every rebuild is identical. */

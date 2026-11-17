@@ -25,7 +25,7 @@ export function buildBackdrop(kit: MaterialKit): Backdrop {
     const loader = new THREE.TextureLoader();
     map = loader.load("/assets/world/cloud-horizon.webp");
     map.colorSpace = THREE.SRGBColorSpace;
-    skyMat = new THREE.MeshBasicMaterial({ map, toneMapped: false });
+    skyMat = new THREE.MeshBasicMaterial({ map, toneMapped: false, color: 0xe3e3e7 });
     sky = new THREE.Mesh(new THREE.PlaneGeometry(300, 150), skyMat);
     sky.position.set(0, 34, -120); // faces +z toward the camera
     group.add(sky);

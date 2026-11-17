@@ -17,10 +17,10 @@ export function buildLighting(sceneRoot: THREE.Group): Lighting {
   const group = new THREE.Group();
   group.name = "lighting";
 
-  const hemi = new THREE.HemisphereLight(PALETTE.skySoft, PALETTE.groundWarm, 0.7);
+  const hemi = new THREE.HemisphereLight(PALETTE.skySoft, PALETTE.groundWarm, 1.15);
   group.add(hemi);
 
-  const sun = new THREE.DirectionalLight(PALETTE.sunWarm, 2.3);
+  const sun = new THREE.DirectionalLight(PALETTE.sunWarm, 2.7);
   sun.position.set(16, 26, 14); // upper-right (+x, +z is front), warm morning angle
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
