@@ -102,70 +102,78 @@ class App {
     }
   }
 
-  /** Walks the active character to an anchor using the normal movement path. */
-  async walkTo(id: string): Promise<string> {
-    const world = this.world;
+  /** Steers toward an anchor, sliding sideways when a prop blocks the path. */
+  private async steerTo(
+    anchor: { x: number; z: number; radius: number },
+    deadlineMs: number,
+    onSample?: (position: THREE.Vector3, blocked: boolean) => void,
+  ): Promise<string> {
     const characters = this.characters;
-    const anchor = world?.result.interactables.find((item) => item.id === id);
-    if (!world || !characters || !anchor) return `${id}:unknown`;
-    const deadline = performance.now() + 24_000;
+    if (!characters) return "no-character-system";
     this.routing = true;
+    const deadline = performance.now() + deadlineMs;
+    let stuckFrames = 0;
+    let detourFrames = 0;
+    let detourSign = 1;
+    let previous: { x: number; z: number } | null = null;
+    let samples = 0;
+    let status = "timeout";
     while (performance.now() < deadline) {
       const position = characters.getActivePosition();
       const dx = anchor.x - position.x;
       const dz = anchor.z - position.z;
       const distance = Math.hypot(dx, dz);
       if (distance <= anchor.radius) {
-        this.routing = false;
-        this.routeAxis = { x: 0, z: 0 };
-        return `${id}:arrived:${distance.toFixed(2)}`;
+        status = "arrived";
+        break;
       }
       const length = Math.max(distance, 0.001);
-      this.routeAxis = { x: dx / length, z: dz / length };
-      const step = Math.min(0.05, Math.max(0.1, performance.now() - this.frameClock) / 1000);
-      characters.update(step);
-      this.followCamera(step);
-      this.render(step * 1000);
+      let axis = { x: dx / length, z: dz / length };
+      if (detourFrames > 0) {
+        // Blocked: slide along the obstacle instead of pinning against it.
+        axis = { x: -axis.z * detourSign, z: axis.x * detourSign };
+        detourFrames -= 1;
+        if (detourFrames === 0) detourSign *= -1;
+      }
+      this.routeAxis = axis;
       await frame();
+      samples += 1;
+      const moved = previous ? Math.hypot(position.x - previous.x, position.z - previous.z) : 1;
+      const blocked = moved < 0.01;
+      if (blocked) stuckFrames += 1;
+      else stuckFrames = 0;
+      if (stuckFrames >= 12 && detourFrames === 0) {
+        stuckFrames = 0;
+        detourFrames = 30;
+      }
+      if (blocked && samples % 8 === 0) onSample?.(position, true);
+      else if (samples % 8 === 0) onSample?.(position, false);
+      previous = { x: position.x, z: position.z };
     }
     this.routing = false;
     this.routeAxis = { x: 0, z: 0 };
-    const ended = characters.getActivePosition();
-    return `${id}:timeout:${Math.hypot(anchor.x - ended.x, anchor.z - ended.z).toFixed(2)}`;
+    return status;
+  }
+
+  /** Walks the active character to an anchor using the normal movement path. */
+  async walkTo(id: string): Promise<string> {
+    const anchor = this.world?.result.interactables.find((item) => item.id === id);
+    if (!anchor) return `${id}:unknown`;
+    const status = await this.steerTo(anchor, 24_000);
+    const position = this.characters?.getActivePosition();
+    const distance = position ? Math.hypot(anchor.x - position.x, anchor.z - position.z) : -1;
+    return `${id}:${status}:${distance.toFixed(2)}`;
   }
 
   /** Same walk as walkTo(), but records where the character got stuck. */
   async walkTrace(id: string): Promise<{ status: string; trace: Array<{ x: number; z: number; blocked: boolean }> }> {
-    const world = this.world;
-    const characters = this.characters;
-    const anchor = world?.result.interactables.find((item) => item.id === id);
-    if (!world || !characters || !anchor) return { status: `${id}:unknown`, trace: [] };
-    this.routing = true;
+    const anchor = this.world?.result.interactables.find((item) => item.id === id);
+    if (!anchor) return { status: `${id}:unknown`, trace: [] };
     const trace: Array<{ x: number; z: number; blocked: boolean }> = [];
-    let previous: { x: number; z: number } | null = null;
-    let status = `${id}:timeout`;
-    const deadline = performance.now() + 24_000;
-    let samples = 0;
-    while (performance.now() < deadline) {
-      const position = characters.getActivePosition();
-      const dx = anchor.x - position.x;
-      const dz = anchor.z - position.z;
-      const distance = Math.hypot(dx, dz);
-      if (distance <= anchor.radius) {
-        status = `${id}:arrived`;
-        break;
-      }
-      const length = Math.max(distance, 0.001);
-      this.routeAxis = { x: dx / length, z: dz / length };
-      await frame();
-      const moved = previous ? Math.hypot(position.x - previous.x, position.z - previous.z) : 1;
-      if (samples % 8 === 0) trace.push({ x: Number(position.x.toFixed(2)), z: Number(position.z.toFixed(2)), blocked: moved < 0.01 });
-      previous = { x: position.x, z: position.z };
-      samples += 1;
-    }
-    this.routing = false;
-    this.routeAxis = { x: 0, z: 0 };
-    return { status, trace };
+    const status = await this.steerTo(anchor, 24_000, (position, blocked) => {
+      trace.push({ x: Number(position.x.toFixed(2)), z: Number(position.z.toFixed(2)), blocked });
+    });
+    return { status: `${id}:${status}`, trace };
   }
 
   /** Read-only view used by the QA harness and the stats panel. */
