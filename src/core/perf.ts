@@ -9,6 +9,8 @@ export type PerfSnapshot = {
   frames: number;
   medianFps: number;
   p95FrameMs: number;
+  maxFrameMs: number;
+  slowFrames: number;
   medianCalls: number;
   medianTriangles: number;
   heapBytes: number | null;
@@ -67,10 +69,13 @@ export class PerfMeter {
     const heap = (globalThis as { performance?: HeapWindow }).performance?.memory;
     const first = this.heap[0];
     const last = this.heap[this.heap.length - 1];
+    const sorted = [...frames].sort((a, b) => a - b);
     return {
       frames: this.samples.length,
       medianFps: median(frames) > 0 ? 1000 / median(frames) : 0,
       p95FrameMs: percentile(frames, 0.95),
+      maxFrameMs: sorted.length ? (sorted[sorted.length - 1] ?? 0) : 0,
+      slowFrames: frames.filter((ms) => ms > 33).length,
       medianCalls: median(calls),
       medianTriangles: median(triangles),
       heapBytes: heap ? heap.usedJSHeapSize : null,

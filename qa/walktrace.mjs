@@ -6,13 +6,16 @@
 import { runPage } from "./cdp.mjs";
 
 const anchor = process.argv[2] ?? "meeting-screen";
+const via = process.argv[3];
 const url = process.env.KAYANGAN_URL ?? "http://127.0.0.1:4173/?autoplay=1";
 
 const trace = await runPage({ port: 9337, url, timeoutMs: 90_000 }, async (session) => {
   await session.waitFor();
-  const parsed = await session.runAsync(`window.KAYANGAN.walkTrace('${anchor}')`);
+  if (via) await session.runAsync(`window.KAYANGAN.walkTo('${via}')`);
+  const parsed = (await session.runAsync(`window.KAYANGAN.walkTrace('${anchor}')`)).value;
   return JSON.stringify({
     anchor,
+    via,
     status: parsed.status,
     blockedSamples: parsed.trace.filter((sample) => sample.blocked).length,
     trace: parsed.trace,

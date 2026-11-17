@@ -116,7 +116,7 @@ export async function connect(page, port) {
      * duration (a long awaitPromise eval can race with navigation and die),
      * then poll for the result.
      */
-    async runAsync(expression, timeoutMs = 90_000) {
+    async runAsync(expression, timeoutMs = 90_000, pollExpression = null) {
       const key = `__qaAsync${Math.floor(Math.random() * 1e6)}`;
       await this.evaluate(
         `window.${key} = { pending: true };` +
@@ -124,11 +124,13 @@ export async function connect(page, port) {
         ` (error) => { window.${key} = { done: true, error: String((error && error.message) || error) }; });`,
       );
       const deadline = Date.now() + timeoutMs;
+      const samples = [];
       while (Date.now() < deadline) {
+        if (pollExpression) samples.push(await this.evaluate(pollExpression));
         const state = JSON.parse(await this.evaluate(`JSON.stringify(window.${key})`));
         if (state && state.done) {
           if (state.error) throw new Error(state.error);
-          return state.value;
+          return { value: state.value, samples };
         }
         await new Promise((resolve) => setTimeout(resolve, 500));
       }

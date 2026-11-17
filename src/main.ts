@@ -422,6 +422,11 @@ class App {
       characters.select(index);
       this.overlay.selectCharacter(index);
       await frame();
+      const greetUntil = performance.now() + 2_500;
+      while (performance.now() < greetUntil) {
+        await frame();
+        routeSeconds += 1 / 60;
+      }
       for (const anchor of world.result.interactables) {
         const deadline = performance.now() + 30_000;
         while (performance.now() < deadline) {
@@ -452,7 +457,14 @@ class App {
         const result = world.interact(anchor.id);
         if (result) interactions.push(`${CHARACTER_IDS[index]}:${result.zone}`);
         visited.push(`${CHARACTER_IDS[index]}:${anchor.id}`);
-        await frame();
+        // Dwell so the measured route covers idle animation and camera drift
+        // as well as walking, and totals about two minutes.
+        const dwellUntil = performance.now() + 6_000;
+        while (performance.now() < dwellUntil) {
+          this.cameraYaw += 0.0015;
+          await frame();
+          routeSeconds += 1 / 60;
+        }
       }
     }
     this.routing = false;
