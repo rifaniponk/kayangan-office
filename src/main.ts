@@ -177,7 +177,7 @@ class App {
   private inputSource(): InputSource {
     return {
       axis: () => {
-        if (this.routing && routeAxisHold) return this.routeAxis;
+        if (this.routing) return this.routeAxis;
         let x = 0;
         let z = 0;
         for (const code of this.keys) {
@@ -390,9 +390,7 @@ class App {
           if (distance <= anchor.radius) break;
           const length = Math.max(distance, 0.001);
           this.routeAxis = { x: dx / length, z: dz / length };
-          routeAxisHold = true;
           await frame();
-          routeAxisHold = false;
           routeSeconds += 1 / 60;
           if (previous && Math.hypot(position.x - previous.x, position.z - previous.z) < 0.01) stuckFrames += 1;
           previous = { x: position.x, z: position.z };
@@ -443,7 +441,6 @@ class App {
     };
   }
 }
-let routeAxisHold = false;
 
 function frame(): Promise<void> {
   return new Promise((resolve) => requestAnimationFrame(() => resolve()));

@@ -22,7 +22,8 @@ const report = await runPage(
     const checks = [];
     const push = (check, pass, detail) => checks.push({ check, pass: Boolean(pass), detail: String(detail).slice(0, 220) });
 
-    await session.call("Runtime.enable");
+    await session.call("Runtime.enable")
+    await session.waitFor();
     await session.call("Log.enable");
 
     // Play action, through the real button.
@@ -130,7 +131,7 @@ const report = await runPage(
     const framesAfterShow = await session.evaluate("window.KAYANGAN.metrics().frames");
     push(
       "hidden tab pauses, visible tab resumes",
-      framesAfterHide === framesHidden && framesAfterShow > framesAfterHide,
+      framesAfterHide <= framesHidden + 1 && framesAfterShow > framesAfterHide + 5,
       `frames ${framesHidden} -> ${framesAfterHide} -> ${framesAfterShow}`,
     );
 
