@@ -102,8 +102,8 @@ absolute frame rates are machine-bound; see the attribution table.
 | Build / types | `npm run typecheck`, `npm run build` | clean; 540.1 kB JS (gzip 141.1 kB) |
 | Tests | `npm run test` | 23 files, 117 tests, all pass |
 | Browser behaviour | `node qa/smoke.mjs "http://127.0.0.1:4173/?autoplay=0" high` | **20/20 pass**: play, key selection, retained positions, movement ~3 m/s, rim containment, four zone walks + activations with narration, on-screen pad movement (-3.00 to +0.89 m), on-screen Interact button activation, drag rotate, wheel zoom (clamped 5-26 m), pause freeze, restart to spawn (delta 0.00 m), hidden/visible tab, resize, High/Low switch, 0 console errors |
-| Route, High | `node qa/route.mjs ... high` | wall 136.9 s (>2 min), **16/16 legs arrived**, 16 activations, heap 6.3 MB (+0.28 MB), average 18.7 fps, p95 117 ms, 0 console errors |
-| Route, Low | `node qa/route.mjs ... low` | wall 123.1 s, **16/16 legs arrived**, 16 activations, heap 6.2 MB (+0.24 MB), average 29.1 fps, p95 83 ms, 0 console errors |
+| Route, High | `node qa/route.mjs ... high` | wall 133.9 s (>2 min), **16/16 legs arrived**, 16 activations, heap 6.3 MB (+0.29 MB), average **19.5 fps**, median frame 8.4 ms (119 fps), p95 **117 ms**, 0 console errors |
+| Route, Low | `node qa/route.mjs ... low` | wall 123.2 s, **16/16 legs arrived**, 16 activations, heap 6.2 MB (+0.26 MB), average 29.1 fps, p95 83 ms, 0 console errors |
 | Heap over movement | `node qa/perf.mjs high 30 ...` (gc forced every 500 ms) | 6.24 MB peak, +0.12 MB over 30 s of walking (under the 0.15 MB budget); a 30 s idle run measured -4.8 KB — no leak |
 | Scene cost | `node qa/render.mjs ...` | 82 draw calls, 8496 triangles, idle median 59.88 fps; budget test proxy 247 objects <= 250 |
 | Frame sanity | `node qa/inspect.mjs qa/art/gameplay.png` | 535 distinct colours, bright 26.3%, bands [0.698, 0.656, 0.59, 0.543, 0.552]; gates: colours >= 400, bright <= 0.30, band spread >= 0.15 |
@@ -115,7 +115,7 @@ absolute frame rates are machine-bound; see the attribution table.
 | Measurement | Value |
 | --- | --- |
 | Idle scene, High | median 59.88 fps |
-| Walking, High, 1920x1080 | 10.87 fps before the backdrop fix, **17.5-18.7 fps** after |
+| Walking, High, 1920x1080 | 10.87 fps before the backdrop fix, 17.4 fps after, **19.5 fps** after the shadow-map revert (`23f2334`) |
 | Walking, Low, 1920x1080 | 17.9-25.2 fps |
 | Walking, Low, 640x400 viewport | 24.0 fps -> fill-rate bound, not draw-call bound |
 | High with `backdrop` hidden | 16.0 fps (+47%) -> backdrop overdraw was the dominant cost; fixed in `7c10c79` |
