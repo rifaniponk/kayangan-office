@@ -5,8 +5,8 @@
  */
 export const PALETTE = {
   deckStone: 0xd8d0c4,
-  concreteEdge: 0xcac0b2,
-  rock: 0xa89c8c,
+  concreteEdge: 0xc2a896,
+  rock: 0xa89280,
   rockDeep: 0x4c4742,
   bronze: 0xb07a3f,
   bronzeDark: 0x8a6032,
