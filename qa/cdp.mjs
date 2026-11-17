@@ -111,6 +111,29 @@ export async function connect(page, port) {
       }
       return result.result.value;
     },
+    /**
+     * Kick off a long promise without holding a CDP eval open for its whole
+     * duration (a long awaitPromise eval can race with navigation and die),
+     * then poll for the result.
+     */
+    async runAsync(expression, timeoutMs = 90_000) {
+      const key = `__qaAsync${Math.floor(Math.random() * 1e6)}`;
+      await this.evaluate(
+        `window.${key} = { pending: true };` +
+        ` (${expression}).then((value) => { window.${key} = { done: true, value }; },` +
+        ` (error) => { window.${key} = { done: true, error: String((error && error.message) || error) }; });`,
+      );
+      const deadline = Date.now() + timeoutMs;
+      while (Date.now() < deadline) {
+        const state = JSON.parse(await this.evaluate(`JSON.stringify(window.${key})`));
+        if (state && state.done) {
+          if (state.error) throw new Error(state.error);
+          return state.value;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+      throw new Error(`Async evaluation timed out after ${timeoutMs} ms`);
+    },
     close() {
       socket.close();
     },

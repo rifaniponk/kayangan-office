@@ -134,6 +134,40 @@ class App {
     return `${id}:timeout:${Math.hypot(anchor.x - ended.x, anchor.z - ended.z).toFixed(2)}`;
   }
 
+  /** Same walk as walkTo(), but records where the character got stuck. */
+  async walkTrace(id: string): Promise<{ status: string; trace: Array<{ x: number; z: number; blocked: boolean }> }> {
+    const world = this.world;
+    const characters = this.characters;
+    const anchor = world?.result.interactables.find((item) => item.id === id);
+    if (!world || !characters || !anchor) return { status: `${id}:unknown`, trace: [] };
+    this.routing = true;
+    const trace: Array<{ x: number; z: number; blocked: boolean }> = [];
+    let previous: { x: number; z: number } | null = null;
+    let status = `${id}:timeout`;
+    const deadline = performance.now() + 24_000;
+    let samples = 0;
+    while (performance.now() < deadline) {
+      const position = characters.getActivePosition();
+      const dx = anchor.x - position.x;
+      const dz = anchor.z - position.z;
+      const distance = Math.hypot(dx, dz);
+      if (distance <= anchor.radius) {
+        status = `${id}:arrived`;
+        break;
+      }
+      const length = Math.max(distance, 0.001);
+      this.routeAxis = { x: dx / length, z: dz / length };
+      await frame();
+      const moved = previous ? Math.hypot(position.x - previous.x, position.z - previous.z) : 1;
+      if (samples % 8 === 0) trace.push({ x: Number(position.x.toFixed(2)), z: Number(position.z.toFixed(2)), blocked: moved < 0.01 });
+      previous = { x: position.x, z: position.z };
+      samples += 1;
+    }
+    this.routing = false;
+    this.routeAxis = { x: 0, z: 0 };
+    return { status, trace };
+  }
+
   /** Read-only view used by the QA harness and the stats panel. */
   debug(): { activeIndex: number; position: { x: number; y: number; z: number }; nearestAnchor: string | null; state: string | null } {
     const position = this.characters?.getActivePosition() ?? new THREE.Vector3();
@@ -464,6 +498,7 @@ declare global {
       setQuality(mode: QualityMode): void;
       key(code: string, down: boolean): void;
       walkTo(id: string): Promise<string>;
+      walkTrace(id: string): Promise<{ status: string; trace: Array<{ x: number; z: number; blocked: boolean }> }>;
     };
   }
 }
@@ -478,6 +513,7 @@ window.KAYANGAN = {
   debug: () => app.debug(),
   setQuality: (mode) => app.setQuality(mode),
   walkTo: (id) => app.walkTo(id),
+  walkTrace: (id) => app.walkTrace(id),
   key: (code, down) =>
     window.dispatchEvent(
       new KeyboardEvent(down ? "keydown" : "keyup", { code, bubbles: true }),
