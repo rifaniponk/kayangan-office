@@ -102,12 +102,12 @@ absolute frame rates are machine-bound; see the attribution table.
 | Build / types | `npm run typecheck`, `npm run build` | clean; 540.1 kB JS (gzip 141.1 kB) |
 | Tests | `npm run test` | 21 files, 101 tests, all pass |
 | Browser behaviour | `node qa/smoke.mjs "http://127.0.0.1:4173/?autoplay=0" high` | **20/20 pass**: play, key selection, retained positions, movement ~3 m/s, rim containment, four zone walks + activations with narration, on-screen pad movement (-3.00 to +0.89 m), on-screen Interact button activation, drag rotate, wheel zoom (clamped 5-26 m), pause freeze, restart to spawn (delta 0.00 m), hidden/visible tab, resize, High/Low switch, 0 console errors |
-| Route, High | `node qa/route.mjs ... high` | wall ~170 s (>2 min), 16/16 activations, heap 6.3 MB peak (+0.31 MB), average 17.2 fps, median frame 8.4 ms, p95 133 ms |
-| Route, Low | `node qa/route.mjs ... low` | wall ~144 s, 16/16 activations, heap 6.2 MB (+0.30 MB), average 25.2 fps, p95 100 ms |
+| Route, High | `node qa/route.mjs ... high` | wall 140.7 s (>2 min), **16/16 legs arrived**, 16 activations, heap 6.3 MB (+0.28 MB), average 17.9 fps, p95 117 ms, 0 console errors |
+| Route, Low | `node qa/route.mjs ... low` | wall 123.4 s, 16/16 legs arrived, 16 activations, heap 6.2 MB (+0.26 MB), average 28.7 fps, p95 83 ms, 0 console errors |
 | Heap over movement | `node qa/perf.mjs high 30 ...` (gc forced every 500 ms) | 6.2376 MB to 6.2327 MB, **delta -4.8 KB** — memory flat, no leak |
 | Scene cost | `node qa/render.mjs ...` | 82 draw calls, 8496 triangles, idle median 59.88 fps; budget test proxy 247 objects <= 250 |
-| Frame sanity | `node qa/inspect.mjs qa/art/world.png` | 465 distinct colours, bright 21.2%, bands [0.724, 0.58, 0.585, 0.544, 0.556] — sky-vs-floor spread 0.17 |
-| Concept comparison | `node qa/compare.mjs design/... qa/art/world.png` | meanDelta 47 (from 68.8), worst row 80.3 (bottom-band hue) |
+| Frame sanity | `node qa/inspect.mjs qa/art/gameplay.png` | 535 distinct colours, bright 26.3%, bands [0.698, 0.656, 0.59, 0.543, 0.552]; gates: colours >= 400, bright <= 0.30, band spread >= 0.15 |
+| Concept comparison | `node qa/compare.mjs design/... qa/art/gameplay.png` | meanDelta 55.9 (from 68.8), worst row 81.1 (bottom-band hue, open world slice) |
 | Navigation | `tests/world-contract.test.ts` + `src/world/walkable.ts` | aisle clear, doorway standable bands 1.26 m / 1.55 m, 16/16 routes reachable, standable distance within every anchor radius |
 
 ### Frame-rate attribution (no GPU on this machine)
