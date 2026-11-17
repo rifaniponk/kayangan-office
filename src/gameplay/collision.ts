@@ -63,14 +63,21 @@ export function slideMove(
   radius: number,
   bounds: DeckBounds,
 ): Vec2 {
+  // Sweep check: a step is accepted only when the midpoint AND endpoint are
+  // free, so a thin prop (door post blocked band 1.24 m) can never be
+  // tunnelled through in one frame even at the largest dt.
+  const pathClear = (nx: number, nz: number): boolean =>
+    !overlapsAny((px + nx) / 2, (pz + nz) / 2, boxes, radius) &&
+    !overlapsAny(nx, nz, boxes, radius);
+
   const clamped = clampToDeck(px + dx, pz + dz, bounds);
-  if (!overlapsAny(clamped.x, clamped.z, boxes, radius)) return clamped;
+  if (pathClear(clamped.x, clamped.z)) return clamped;
 
   const slideX = clampToDeck(px + dx, pz, bounds);
-  if (!overlapsAny(slideX.x, slideX.z, boxes, radius)) return slideX;
+  if (pathClear(slideX.x, slideX.z)) return slideX;
 
   const slideZ = clampToDeck(px, pz + dz, bounds);
-  if (!overlapsAny(slideZ.x, slideZ.z, boxes, radius)) return slideZ;
+  if (pathClear(slideZ.x, slideZ.z)) return slideZ;
 
   return clampToDeck(px, pz, bounds);
 }

@@ -50,6 +50,8 @@ describe("collision", () => {
     let wedged = { x: -5.3, z: -3.5 };
     for (let i = 0; i < 12; i++) wedged = slideMove(wedged.x, wedged.z, 0, 0.2, posts, CHARACTER_RADIUS, bounds);
     expect(wedged.z).toBeLessThan(-1.3); // centre outside the band stays blocked
+    const noTunnel = slideMove(-5.3, -3.5, 0, 2.5, posts, CHARACTER_RADIUS, bounds);
+    expect(noTunnel.z).toBeLessThan(-1.3); // sweep check: one big step cannot cross a thin prop
   });
 
   it("snaps an escaped character back to its spawn", () => {
