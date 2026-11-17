@@ -33,15 +33,6 @@ export function buildMeeting(kit: MaterialKit, geo: GeoCache): MeetingZone {
   pedestal.position.set(tableX, 0.38, tableZ);
   pedestal.castShadow = true;
   group.add(pedestal);
-
-  // Pendant lamp over the table: bronze cord + warm bulb.
-  const cord = new THREE.Mesh(geo.cyl(0.02, 0.02, 0.9, 8), kit.bronzeDark);
-  cord.position.set(tableX, 2.2, tableZ);
-  group.add(cord);
-  const bulb = new THREE.Mesh(geo.sphere(0.12, 8, 6), kit.glow);
-  bulb.position.set(tableX, 1.72, tableZ);
-  bulb.name = "pendant-bulb";
-  group.add(bulb);
   colliders.push({ x: tableX, z: tableZ, width: 2.4, depth: 1.3 });
 
   // Four chairs at the long ends of the table, facing the tabletop, leaving
@@ -87,6 +78,22 @@ export function buildMeeting(kit: MaterialKit, geo: GeoCache): MeetingZone {
   }
   chart.visible = false;
   group.add(chart);
+
+  // Floor lamp in the room's west corner (grounded, warm bulb).
+  const lamp = new THREE.Group();
+  lamp.position.set(-12.6, 0, -3.4);
+  const pole = new THREE.Mesh(geo.cyl(0.03, 0.03, 1.4, 8), kit.bronze);
+  pole.position.y = 0.7;
+  lamp.add(pole);
+  const shade = new THREE.Mesh(geo.cyl(0.16, 0.24, 0.22, 12), kit.stone);
+  shade.position.y = 1.45;
+  shade.castShadow = true;
+  lamp.add(shade);
+  const bulb = new THREE.Mesh(geo.sphere(0.11, 8, 6), kit.glow);
+  bulb.position.y = 1.36;
+  lamp.add(bulb);
+  group.add(lamp);
+  colliders.push({ x: -12.6, z: -3.4, width: 0.5, depth: 0.5 });
   const plan = new THREE.Group();
   for (let i = 0; i < 3; i++) {
     const bar = new THREE.Mesh(geo.box(0.5, 0.08, 0.04), kit.bronze);
