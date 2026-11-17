@@ -133,9 +133,21 @@ export async function connect(page, port) {
       );
       const deadline = Date.now() + timeoutMs;
       const samples = [];
+      let refires = 0;
       while (Date.now() < deadline) {
         if (pollExpression) samples.push(await this.evaluate(pollExpression));
-        const state = JSON.parse(await this.evaluate(`JSON.stringify(window.${key})`));
+        const raw = await this.evaluate(`JSON.stringify(window.${key})`);
+        // A page reload drops the global; re-fire the work and keep polling.
+        if (raw === undefined || raw === null) {
+          if (refires++ > 2) throw new Error("Page reloaded repeatedly during the async evaluation");
+          await this.evaluate(
+            `window.${key} = { pending: true };` +
+            ` (${expression}).then((value) => { window.${key} = { done: true, value }; },` +
+            ` (error) => { window.${key} = { done: true, error: String((error && error.message) || error) }; });`,
+          );
+          continue;
+        }
+        const state = JSON.parse(raw);
         if (state && state.done) {
           if (state.error) throw new Error(state.error);
           return { value: state.value, samples };
