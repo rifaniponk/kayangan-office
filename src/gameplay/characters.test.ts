@@ -161,6 +161,25 @@ describe("character system", () => {
     sys.dispose();
   });
 
+  it("movement follows the camera yaw, not world axes", () => {
+    const { world } = makeWorld();
+    let yaw = Math.PI / 2; // camera faces -x: pressing forward must travel -x
+    const input = makeInput({ axis: () => ({ x: 0, z: -1 }), yaw: () => yaw });
+    const sys = createCharacters(world, input);
+    sys.select(2); // courier spawn (3.5, 6): open floor toward -x
+    const start = sys.getActivePosition().clone();
+    step(sys, 60);
+    const moved = sys.getActivePosition();
+    expect(moved.x).toBeLessThan(start.x - 1.5); // moved west
+    expect(Math.abs(moved.z - start.z)).toBeLessThan(0.3); // not north/south
+    yaw = 0; // camera faces -z after rotation: forward now travels -z
+    step(sys, 60);
+    const moved2 = sys.getActivePosition();
+    expect(moved2.z).toBeLessThan(moved.z - 1.5);
+    expect(Math.abs(moved2.x - moved.x)).toBeLessThan(0.3);
+    sys.dispose();
+  });
+
   it("movement distance is frame-rate independent", () => {
     const { world } = makeWorld();
     const sys = createCharacters(world, makeInput({ axis: () => ({ x: 0.6, z: -0.8 }) }));
