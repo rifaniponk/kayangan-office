@@ -25,12 +25,12 @@
     {
       "check": "deck edge stops the character",
       "pass": true,
-      "detail": "{\"x\":-4.281009931688704,\"y\":0,\"z\":11.1}"
+      "detail": "{\"x\":-4.280463657518725,\"y\":0,\"z\":11.1}"
     },
     {
       "check": "walks to the desk anchor and sees the prompt",
       "pass": true,
-      "detail": "desk-monitor:arrived:2.20 / prompt=desk-monitor"
+      "detail": "desk-monitor:arrived:2.04 / prompt=desk-monitor"
     },
     {
       "check": "E activates the desk zone",
@@ -55,7 +55,7 @@
     {
       "check": "on-screen pad moves the character",
       "pass": true,
-      "detail": "x -3.00 -> 0.89"
+      "detail": "x -3.00 -> 1.00"
     },
     {
       "check": "drag rotates the camera",
@@ -70,12 +70,12 @@
     {
       "check": "on-screen Interact button activates the zone",
       "pass": true,
-      "detail": "desk-monitor:arrived:2.06 / toast=Shared desk monitor — Monitor asleep — the pod / state=interact"
+      "detail": "desk-monitor:arrived:2.14 / toast=Shared desk monitor — Monitor asleep — the pod / state=interact"
     },
     {
       "check": "pause freezes the simulation",
       "pass": true,
-      "detail": "-6.50 vs -6.50"
+      "detail": "-6.55 vs -6.55"
     },
     {
       "check": "restart resets to spawn points",
@@ -106,5 +106,5 @@
   "browserErrors": [
     null
   ],
-  "chromeStderr": "[4791:4791:1117/161847.106203:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/rifan/.config/google-chrome/Crash Reports/settings.dat: Read-only file system (30)\n[4791:4791:1117/161847.106266:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home"
+  "chromeStderr": "[4800:4800:1117/175858.676403:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/rifan/.config/google-chrome/Crash Reports/settings.dat: Read-only file system (30)\n[4800:4800:1117/175858.676469:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home"
 }

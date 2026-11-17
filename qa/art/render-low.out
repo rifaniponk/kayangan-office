@@ -8,12 +8,12 @@
       "frames": 150,
       "medianFps": 59.880239520958085,
       "p95FrameMs": 83.40000000000009,
-      "maxFrameMs": 483.29999999999995,
+      "maxFrameMs": 500,
       "slowFrames": 73,
       "medianCalls": 92,
       "medianTriangles": 7420,
-      "heapBytes": 11062733,
-      "heapGrowthBytes": 2423820
+      "heapBytes": 11089144,
+      "heapGrowthBytes": 2704808
     },
     "canvas": {
       "w": 1920,
@@ -23,5 +23,5 @@
   "browserErrors": [
     null
   ],
-  "chromeStderr": "[587:587:1117/164325.989979:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/rifan/.config/google-chrome/Crash Reports/settings.dat: Read-only file system (30)\n[587:587:1117/164325.990042:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/rifan/.config/google-chrome/Crash Reports/settings.dat: Read-only file system (30)\n[587:606:1117/164326"
+  "chromeStderr": "[5193:5193:1117/180213.761098:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/rifan/.config/google-chrome/Crash Reports/settings.dat: Read-only file system (30)\n[5193:5193:1117/180213.761151:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/rifan/.config/google-chrome/Crash Reports/settings.dat: Read-only file system (30)\n[5193:5213:1117/"
 }
