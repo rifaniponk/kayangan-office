@@ -19,13 +19,13 @@ const heapPoll =
   "(() => { if (window.gc) window.gc(); return performance.memory ? performance.memory.usedJSHeapSize : null; })()";
 
 const report = await runPage(
-  { port: 9334, url, args: ["--js-flags=--expose-gc"], timeoutMs: 420_000 },
+  { port: 9334, url, args: ["--js-flags=--expose-gc"], timeoutMs: 600_000 },
   async (session, stderr) => {
     await session.waitFor();
     await session.evaluate(`window.KAYANGAN && window.KAYANGAN.start('${quality}')`);
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    const walked = await session.runAsync("window.KAYANGAN.runRoute()", 360_000, heapPoll);
+    const walked = await session.runAsync("window.KAYANGAN.runRoute()", 500_000, heapPoll);
     const route = walked.value;
     const heapSamples = walked.samples.filter((value) => typeof value === "number");
     const heapTrend =

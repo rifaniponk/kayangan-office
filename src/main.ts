@@ -439,14 +439,14 @@ class App {
       characters.select(index);
       this.overlay.selectCharacter(index);
       await frame();
-      routeSeconds += 2;
-      await sleep(2000);
+      routeSeconds += 1.5;
+      await sleep(1500);
       for (const anchor of world.result.interactables) {
-        const status = await this.steerTo(anchor, 20_000, undefined, () => {
+        const status = await this.steerTo(anchor, 14_000, undefined, () => {
           blockedSteps += 1;
         });
-        routeSeconds += 4;
-        await sleep(4000);
+        routeSeconds += 3;
+        await sleep(3000);
         this.interactHeld = true;
         await frame();
         await frame();
