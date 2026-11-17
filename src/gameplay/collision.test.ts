@@ -38,6 +38,20 @@ describe("collision", () => {
     expect(outsideDeck(p.x, p.z, bounds)).toBe(false);
   });
 
+  it("slides through the doorway band and wedges outside it", () => {
+    // A's door posts: faces at x=-6.99 and x=-4.97 -> standable centre band (-6.44, -5.52).
+    const posts = [
+      { x: -7.06, z: -2.0, width: 0.14, depth: 0.3 },
+      { x: -4.9, z: -2.0, width: 0.14, depth: 0.3 },
+    ];
+    let through = { x: -6, z: -3.5 };
+    for (let i = 0; i < 12; i++) through = slideMove(through.x, through.z, 0, 0.2, posts, CHARACTER_RADIUS, bounds);
+    expect(through.z).toBeGreaterThan(-1.2); // centre at x=-6 passes the gap
+    let wedged = { x: -5.3, z: -3.5 };
+    for (let i = 0; i < 12; i++) wedged = slideMove(wedged.x, wedged.z, 0, 0.2, posts, CHARACTER_RADIUS, bounds);
+    expect(wedged.z).toBeLessThan(-1.3); // centre outside the band stays blocked
+  });
+
   it("snaps an escaped character back to its spawn", () => {
     const spawn = { x: -3, z: 6 };
     expect(ensureOnDeck(100, 100, bounds, spawn)).toEqual({ x: -3, z: 6 });
