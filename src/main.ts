@@ -109,12 +109,17 @@ class App {
     const anchor = world?.result.interactables.find((item) => item.id === id);
     if (!world || !characters || !anchor) return `${id}:unknown`;
     const deadline = performance.now() + 24_000;
+    this.routing = true;
     while (performance.now() < deadline) {
       const position = characters.getActivePosition();
       const dx = anchor.x - position.x;
       const dz = anchor.z - position.z;
       const distance = Math.hypot(dx, dz);
-      if (distance <= anchor.radius) return `${id}:arrived:${distance.toFixed(2)}`;
+      if (distance <= anchor.radius) {
+        this.routing = false;
+        this.routeAxis = { x: 0, z: 0 };
+        return `${id}:arrived:${distance.toFixed(2)}`;
+      }
       const length = Math.max(distance, 0.001);
       this.routeAxis = { x: dx / length, z: dz / length };
       const step = Math.min(0.05, Math.max(0.1, performance.now() - this.frameClock) / 1000);
@@ -123,6 +128,8 @@ class App {
       this.render(step * 1000);
       await frame();
     }
+    this.routing = false;
+    this.routeAxis = { x: 0, z: 0 };
     const ended = characters.getActivePosition();
     return `${id}:timeout:${Math.hypot(anchor.x - ended.x, anchor.z - ended.z).toFixed(2)}`;
   }
@@ -300,7 +307,7 @@ class App {
   }
 
   private tick(now: number): void {
-    if (!this.playing || this.paused) return;
+    if (!this.playing || this.paused || document.hidden) return;
     const elapsed = this.frameClock === 0 ? 16.7 : now - this.frameClock;
     const delta = Math.min(0.05, elapsed / 1000 || 0.016);
     this.frameClock = now;
