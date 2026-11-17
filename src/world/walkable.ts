@@ -133,9 +133,14 @@ export function auditWalkability(
   );
 
   const doorways = [
-    { id: "meeting-door", x: -6, z: -2, leftFallback: -7.0 }, // glass walls bound it
+    { id: "meeting-door", x: -6, z: -2, leftFallback: -7.4 }, // glass walls bound it
     { id: "terrace-opening", x: 4.9, z: -2.15, leftFallback: 4.0 }, // terrace deck edge
-  ].map((d) => ({ id: d.id, gapMeters: gapAlongX(d.z, d.x, colliders, d.leftFallback) }));
+  ].map((d) => {
+    // B's character is a 0.55 m-radius body; the standable band is the edge
+    // gap minus one body diameter.
+    const gapMeters = gapAlongX(d.z, d.x, colliders, d.leftFallback);
+    return { id: d.id, gapMeters, standableGapMeters: gapMeters - 2 * RADIUS };
+  });
 
   const reachable: WalkabilityReport["reachable"] = [];
   spawns.forEach((s, spawnIndex) => {

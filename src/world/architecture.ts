@@ -36,8 +36,8 @@ export function buildArchitecture(kit: MaterialKit, geo: GeoCache): Architecture
   // ---- Glass meeting room: x∈[-14,-4], z∈[-10,-2], door gap x∈[-7,-5] at z=-2.
   const walls: Array<[number, number, number, number]> = [
     // [x, z, length, rotY]
-    [-10.5, -2, 7, 0], // south wall, west of door gap
-    [-4.5, -2, 1, 0], // south wall, east of door gap
+    [-10.6, -2, 6.8, 0], // south wall, west of door gap (ends at the west post)
+    [-4.0, -2, 0.4, 0], // south wall stub, east of door gap (starts past the east post)
     [-9, -10, 10, 0], // back wall
     [-14, -6, 8, Math.PI / 2], // west wall
     [-4, -6, 8, Math.PI / 2], // east wall
@@ -65,7 +65,7 @@ export function buildArchitecture(kit: MaterialKit, geo: GeoCache): Architecture
   const rails: Array<[number, number, number, number]> = [
     [9, -9.85, 10, 0], // back edge
     [13.85, -6, 8, Math.PI / 2], // right edge
-    [9.7, -2.15, 7.6, 0], // inner edge
+    [10.15, -2.15, 6.9, 0], // inner edge (opens a 2.7 m terrace entrance)
   ];
   const midGeos: THREE.BufferGeometry[] = [];
   const postGeo = geo.cyl(0.05, 0.05, RAIL_H, 8);
@@ -96,16 +96,16 @@ export function buildArchitecture(kit: MaterialKit, geo: GeoCache): Architecture
   const frameGeo = geo.cyl(0.07, 0.07, 2.6, 10);
   const frame = new THREE.InstancedMesh(frameGeo, kit.bronze, 2);
   const fm = new THREE.Matrix4();
-  frame.setMatrixAt(0, fm.makeTranslation(-7.06, 1.3, -2.0));
-  frame.setMatrixAt(1, fm.makeTranslation(-4.9, 1.3, -2.0));
+  frame.setMatrixAt(0, fm.makeTranslation(-7.2, 1.3, -2.0));
+  frame.setMatrixAt(1, fm.makeTranslation(-4.7, 1.3, -2.0));
   frame.instanceMatrix.needsUpdate = true;
   frame.castShadow = true;
   frame.name = "door-frame";
   frame.userData.casts = true;
   group.add(frame);
   colliders.push(
-    { x: -7.06, z: -2.0, width: 0.14, depth: 0.3 },
-    { x: -4.9, z: -2.0, width: 0.14, depth: 0.3 },
+    { x: -7.2, z: -2.0, width: 0.14, depth: 0.3 },
+    { x: -4.7, z: -2.0, width: 0.14, depth: 0.3 },
   );
 
   // Merged static rails: two meshes instead of thirteen.
