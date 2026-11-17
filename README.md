@@ -68,13 +68,18 @@ open image files, so QA is numeric:
 
 ```bash
 node qa/render.mjs "http://127.0.0.1:4173/?autoplay=1" qa/art/gameplay.png high 5000
-node qa/route.mjs "http://127.0.0.1:4173/?autoplay=1" high qa/art/route.json
-node qa/inspect.mjs qa/art/gameplay.png      # colour spread, dark/bright fractions, bands
+node qa/route.mjs "http://127.0.0.1:4173/?autoplay=1" high qa/art/route-high.json
+node qa/perf.mjs high 30 "http://127.0.0.1:4173/?autoplay=1"   # movement-only fps + gc heap
+node qa/inspect.mjs qa/art/gameplay.png      # colour spread, bright fraction, luminance bands
+node qa/compare.mjs design/kayangan-office-concept-v2.png qa/art/gameplay.png
 node qa/pixel-probe.mjs design/kayangan-office-concept-v2.png 6   # sampled design palette
+node qa/smoke.mjs "http://127.0.0.1:4173/?autoplay=0" high         # 20 behavioural checks
 ```
 
-`qa/route.mjs` drives all four characters to all four anchors in real Chromium and reports median
-fps, 95th-percentile frame time, draw calls, triangles, heap trend and console errors.
+`qa/route.mjs` drives all four characters to all four anchors in real Chromium (legs route through
+the door gaps and rail gate) and reports wall-clock duration, average and median fps, p95 frame
+time, draw calls, triangles, gc-forced heap trend and console errors. The follow rig scales with
+viewport height so avatars stay ≥60 px tall on small windows.
 
 ## Runtime assets
 
