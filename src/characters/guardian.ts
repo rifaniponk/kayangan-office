@@ -37,9 +37,14 @@ export function buildGuardian(): Avatar {
   mesh(head, sphere(0.055, 10, 6), eyeMat, -0.12, 0.02, 0.26);
   mesh(head, sphere(0.055, 10, 6), eyeMat, 0.12, 0.02, 0.26);
   const leaves: THREE.Mesh[] = [];
-  for (const [x, y, z, tilt] of [[-0.22, 0.2, 0.1, 0.5], [0.2, 0.24, -0.06, -0.6], [0.02, 0.32, -0.16, 0.2]]) {
-    const leaf = mesh(head, new THREE.ConeGeometry(0.08, 0.22, 8), leafMat, x, y, z);
-    leaf.rotation.set(tilt, tilt * 0.6, tilt);
+  const leafSpots: { x: number; y: number; z: number; tilt: number }[] = [
+    { x: -0.22, y: 0.2, z: 0.1, tilt: 0.5 },
+    { x: 0.2, y: 0.24, z: -0.06, tilt: -0.6 },
+    { x: 0.02, y: 0.32, z: -0.16, tilt: 0.2 },
+  ];
+  for (const spot of leafSpots) {
+    const leaf = mesh(head, new THREE.ConeGeometry(0.08, 0.22, 8), leafMat, spot.x, spot.y, spot.z);
+    leaf.rotation.set(spot.tilt, spot.tilt * 0.6, spot.tilt);
     leaves.push(leaf);
   }
 

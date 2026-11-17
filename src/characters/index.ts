@@ -7,6 +7,8 @@ import type { Avatar } from "./parts.js";
 
 export type { Avatar } from "./parts.js";
 export { PALETTE } from "./palette.js";
+/** App entry point: src/main.ts imports createCharacters from this module. */
+export { createCharacters } from "../gameplay/characters.js";
 
 /** Index order matches CHARACTER_IDS: Cloud, Automaton, Courier, Guardian. */
 export const AVATAR_BUILDERS: readonly (() => Avatar)[] = [

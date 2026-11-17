@@ -23,7 +23,7 @@ export function buildCloud(): Avatar {
   const handMat = glow(P.curl, 0.35);
 
   const body = new THREE.Group();
-  body.position.y = 0.52; // hovers: feet clear of the deck
+  body.position.y = 0.56; // hovers: feet clear of the deck
   root.add(body);
 
   const core = mesh(body, sphere(0.42, 24, 16), puff, 0, 0, 0);
@@ -60,12 +60,12 @@ export function buildCloud(): Avatar {
 
   return {
     id: "cloud",
-    height: 1.08,
+    height: 1.14,
     root,
     animate(state: CharacterState, clock: number, dt: number, speedRatio: number, gesture: number): void {
       const float = state === "move" ? Math.sin(clock * 5.2) * 0.07 : Math.sin(clock * 1.6) * 0.05;
       const squish = 1 + Math.sin(clock * (state === "move" ? 5 : 1.9)) * 0.04;
-      body.position.y = 0.52 + float + gestureArc(gesture) * 0.22;
+      body.position.y = 0.56 + float + gestureArc(gesture) * 0.22;
       core.scale.set(1.05 * squish, 0.82 / squish, 0.95);
       body.rotation.x = state === "move" ? 0.16 * speedRatio : Math.sin(clock * 1.1) * 0.03;
       body.rotation.z = state === "move" ? Math.sin(clock * 5.2) * 0.05 : Math.sin(clock * 0.7) * 0.04;
