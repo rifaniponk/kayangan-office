@@ -145,6 +145,22 @@ describe("character system", () => {
     sys.dispose();
   });
 
+  it("spawn points inside props are pushed to free floor", () => {
+    const { world } = makeWorld();
+    // Move the Cloud spawn onto the desk collider itself.
+    world.result.spawnPoints[0]!.set(-8, 0, 7.7);
+    const sys = createCharacters(world, makeInput({}));
+    const pos = sys.getActivePosition();
+    const inside = world.result.colliders.some((c) => {
+      const cx = Math.max(c.x - c.width / 2, Math.min(c.x + c.width / 2, pos.x));
+      const cz = Math.max(c.z - c.depth / 2, Math.min(c.z + c.depth / 2, pos.z));
+      return (pos.x - cx) ** 2 + (pos.z - cz) ** 2 < CHARACTER_RADIUS * CHARACTER_RADIUS;
+    });
+    expect(inside).toBe(false);
+    expect(Math.abs(pos.x)).toBeLessThanOrEqual(DECK_BOUNDS.halfX - DECK_BOUNDS.inset);
+    sys.dispose();
+  });
+
   it("movement distance is frame-rate independent", () => {
     const { world } = makeWorld();
     const sys = createCharacters(world, makeInput({ axis: () => ({ x: 0.6, z: -0.8 }) }));
