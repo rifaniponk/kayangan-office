@@ -120,6 +120,7 @@ export function buildLounge(kit: MaterialKit, geo: GeoCache): LoungeZone {
   shade.castShadow = true;
   lamp.add(shade);
   group.add(lamp);
+  group.add(instance(geo.sphere(0.11, 6, 5), kit.glow, [[12.4, 1.36, 8.8, 0]]));
   colliders.push({ x: 12.4, z: 8.8, width: 0.5, depth: 0.5 });
 
   return {

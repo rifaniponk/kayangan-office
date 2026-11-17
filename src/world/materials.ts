@@ -21,6 +21,7 @@ export interface MaterialKit {
   moss: THREE.MeshStandardMaterial;
   soil: THREE.MeshStandardMaterial;
   cloud: THREE.MeshBasicMaterial;
+  glow: THREE.MeshStandardMaterial;
   dispose(): void;
 }
 
@@ -102,6 +103,11 @@ export function createMaterialKit(): MaterialKit {
   const screenBoard = std(PALETTE.screenOff, { roughness: 0.3, emissive: 0x000000, emissiveIntensity: 0 });
   const moss = std(PALETTE.moss, { roughness: 0.9, flatShading: true });
   const soil = std(PALETTE.soil, { roughness: 1 });
+  const glow = std(PALETTE.sunWarm, {
+    roughness: 0.4,
+    emissive: 0xffc98a,
+    emissiveIntensity: 0.9,
+  });
 
   const glass = new THREE.MeshPhysicalMaterial({
     color: PALETTE.glass,
@@ -138,6 +144,7 @@ export function createMaterialKit(): MaterialKit {
     moss,
     soil,
     cloud,
+    glow,
     dispose() {
       for (const d of disposables) d.dispose();
     },

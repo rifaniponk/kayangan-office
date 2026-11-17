@@ -75,7 +75,7 @@ export function buildTerrace(kit: MaterialKit, geo: GeoCache): TerraceZone {
   const rand = seededRandom(0x2f7c51);
   const foliage: Array<[number, number, number, number]> = [];
   for (const [x, z] of planterSpots) {
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 5; i++) {
       foliage.push([x + (rand() - 0.5) * 0.5, 0.7 + rand() * 0.28, z + (rand() - 0.5) * 0.5, rand() * Math.PI]);
     }
   }

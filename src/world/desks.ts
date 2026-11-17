@@ -174,6 +174,7 @@ export function buildDesks(kit: MaterialKit, geo: GeoCache): DeskZone {
   // Desk lamps: bronze arm + warm shade, on the far corner.
   const armGeo = geo.cyl(0.02, 0.02, 0.42, 6);
   const shadeGeo = geo.cyl(0.06, 0.14, 0.12, 9);
+  const bulbT: Array<[number, number, number, number]> = [];
   for (const [x, z, r] of centers) {
     const ux = -Math.sin(r);
     const uz = -Math.cos(r);
@@ -187,7 +188,9 @@ export function buildDesks(kit: MaterialKit, geo: GeoCache): DeskZone {
     shade.position.set(lx - 0.12, 1.18, lz);
     shade.castShadow = true;
     group.add(shade);
+    bulbT.push([lx - 0.12, 1.11, lz, 0]);
   }
+  group.add(instance(geo.sphere(0.07, 6, 5), kit.glow, bulbT));
 
   // Chairs sit between the facing rows.
   const chairSpots: Array<[number, number, number]> = [
