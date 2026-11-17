@@ -42,7 +42,7 @@ export function buildTerrace(kit: MaterialKit, geo: GeoCache): TerraceZone {
   const legGeo = geo.cyl(0.04, 0.04, 0.44, 8);
   const spots: Array<[number, number, number]> = [
     [6.2, -7.2, Math.PI / 2], // west chair, faces +x
-    [10.9, -8.6, -Math.PI / 2], // east chair, faces -x
+    [11.5, -8.6, -Math.PI / 2], // east chair, faces -x (clear of pergola posts)
   ];
   const seats: Array<[number, number, number, number]> = [];
   const backs: Array<[number, number, number, number]> = [];
@@ -63,6 +63,21 @@ export function buildTerrace(kit: MaterialKit, geo: GeoCache): TerraceZone {
   group.add(instance(seatGeo, kit.wood, seats, true));
   group.add(instance(backGeo, kit.woodDark, backs, true));
   group.add(instance(legGeo, kit.bronzeDark, legs));
+
+  // Pergola over the terrace table: four bronze posts + stone canopy slab.
+  const pergolaPosts: Array<[number, number, number, number]> = [
+    [7.4, 1.2, -3.4, 0],
+    [10.6, 1.2, -3.4, 0],
+    [7.4, 1.2, -8.6, 0],
+    [10.6, 1.2, -8.6, 0],
+  ];
+  group.add(instance(geo.cyl(0.07, 0.07, 2.4, 10), kit.bronze, pergolaPosts, true));
+  for (const [x, , z] of pergolaPosts) colliders.push({ x, z, width: 0.16, depth: 0.16 });
+  const canopy = new THREE.Mesh(geo.box(3.6, 0.08, 3.6), kit.stone);
+  canopy.position.set(9, 2.44, -6);
+  canopy.castShadow = true;
+  canopy.name = "pergola-canopy";
+  group.add(canopy);
 
   // Planters with foliage (instanced, density by quality).
   const planterSpots: Array<[number, number]> = [[6.4, -9.2], [12.6, -9.2], [12.6, -2.9]];
