@@ -31,10 +31,10 @@ export function createStage(canvas: HTMLCanvasElement, mode: QualityMode = "high
   const scene = new THREE.Scene();
   // Sky values sampled from design/kayangan-office-concept-v2.png (qa/art/probe-concept.json):
   // upper band #afbdda..#dddae6. Kept out of fog influence so the backdrop stays readable.
-  scene.background = new THREE.Color(0xd9e3ee);
-  scene.fog = new THREE.Fog(0xe3ebf3, 55, 165);
+  scene.background = new THREE.Color(0xc3d3e3);
+  scene.fog = new THREE.Fog(0xd8e4ee, 55, 165);
   // fov 56 keeps lateral allies inside the frustum while following one avatar.
-  const camera = new THREE.PerspectiveCamera(56, 1, 0.25, 240);
+  const camera = new THREE.PerspectiveCamera(58, 1, 0.25, 240);
 
   let dpr = DPR[mode];
 
