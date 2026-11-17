@@ -199,14 +199,14 @@ describe("character system", () => {
     const spawn = sys.getActivePosition().clone();
     sys.setMoveAxis(0, -1);
     step(sys, 60); // 1 s straight "forward" at yaw 0 -> world -z
-    const south = sys.getActivePosition();
+    const south = sys.getActivePosition().clone();
     expect(south.z).toBeLessThan(spawn.z - 3.0); // ~3.6 m south
     expect(Math.abs(south.x - spawn.x)).toBeLessThan(0.3);
     console.log(`setMoveAxis(0,-1) @yaw0: ${(spawn.z - south.z).toFixed(2)} m in 1 s (speed 3.6)`);
 
     yaw = Math.PI / 2; // camera faces -x: same button moves world -x
     step(sys, 60);
-    const west = sys.getActivePosition();
+    const west = sys.getActivePosition().clone(); // getActivePosition returns a shared view; copy before more steps
     expect(west.x).toBeLessThan(south.x - 3.0);
     expect(Math.abs(west.z - south.z)).toBeLessThan(0.3);
     console.log(`setMoveAxis(0,-1) @yaw90: ${(south.x - west.x).toFixed(2)} m west in 1 s`);
@@ -242,12 +242,12 @@ describe("character system", () => {
     sys.select(2); // courier spawn (3.5, 6): open floor toward -x
     const start = sys.getActivePosition().clone();
     step(sys, 60);
-    const moved = sys.getActivePosition();
+    const moved = sys.getActivePosition().clone();
     expect(moved.x).toBeLessThan(start.x - 1.5); // moved west
     expect(Math.abs(moved.z - start.z)).toBeLessThan(0.3); // not north/south
     yaw = 0; // camera faces -z after rotation: forward now travels -z
     step(sys, 60);
-    const moved2 = sys.getActivePosition();
+    const moved2 = sys.getActivePosition().clone();
     expect(moved2.z).toBeLessThan(moved.z - 1.5);
     expect(Math.abs(moved2.x - moved.x)).toBeLessThan(0.3);
     sys.dispose();
