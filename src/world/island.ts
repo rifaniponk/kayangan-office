@@ -2,6 +2,7 @@ import * as THREE from "three";
 import type { MaterialKit } from "./materials.js";
 import { GeoCache } from "./materials.js";
 import { PALETTE, seededRandom } from "./palette.js";
+import { instance } from "./desks.js";
 
 /**
  * Floating island: level walkable deck (36×24 m at y=0), visible concrete rim,
@@ -25,6 +26,14 @@ export function buildIsland(kit: MaterialKit, geo: GeoCache): THREE.Group {
   rim.receiveShadow = true;
   rim.name = "rim";
   group.add(rim);
+
+  // Bronze edge strips flanking the central aisle (|x| <= 2.5 stays clear).
+  const strips = instance(geo.box(0.35, 0.035, 23.6), kit.bronzeDark, [
+    [-2.72, 0.018, 0, 0],
+    [2.72, 0.018, 0, 0],
+  ]);
+  strips.name = "aisle-strips";
+  group.add(strips);
 
   // Main rock underside: tapered mass below the deck, jittered silhouette.
   const underside = new THREE.CylinderGeometry(17.2, 6.5, 5.4, 26, 3);

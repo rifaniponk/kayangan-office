@@ -83,6 +83,13 @@ export function buildTerrace(kit: MaterialKit, geo: GeoCache): TerraceZone {
   group.add(leaves);
   for (const [x, z] of planterSpots) colliders.push({ x, z, width: 0.95, depth: 0.95 });
 
+  // Teal accent mat on the terrace floor, clear of railings and chairs.
+  const mat = new THREE.Mesh(geo.box(2.4, 0.03, 1.6), kit.tealDeep);
+  mat.position.set(9, 0.016, -4.8);
+  mat.receiveShadow = true;
+  mat.name = "terrace-mat";
+  group.add(mat);
+
   return {
     group,
     colliders,
