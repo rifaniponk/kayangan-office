@@ -503,7 +503,8 @@ class App {
 
   /**
    * Corridor waypoints the deck layout forces: the terrace is only reachable
-   * through the inner rail gap and the meeting room through the door gap.
+   * through the inner rail gap, the meeting room through the door gap, and the
+   * desk pod through its doorway.
    */
   private static readonly WAYPOINTS: Record<string, { x: number; z: number } | undefined> = {
     "terrace-lookout": { x: 4.9, z: -2.5 },
@@ -512,8 +513,26 @@ class App {
     "desk-monitor": { x: -5.0, z: 4.0 },
   };
 
+  /** Gate out of the zone a leg starts in, so exits use the same gaps as entry. */
+  private static readonly ZONE_GATES: Record<string, { x: number; z: number }> = {
+    desk: { x: -5.0, z: 4.0 },
+    meeting: { x: -6.0, z: -1.4 },
+    lounge: { x: 6.5, z: 4.4 },
+    terrace: { x: 4.9, z: -2.5 },
+  };
+
   /** Walk to an anchor through its corridor waypoint, when the layout needs one. */
   private async walkToAnchor(anchor: Interactable, onBlocked?: () => void): Promise<string> {
+    const start = this.characters?.getActivePosition();
+    if (start) {
+      const zone =
+        start.x < -2.5 ? (start.z > 0 ? "desk" : "meeting") : start.x > 2.5 ? (start.z > 0 ? "lounge" : "terrace") : null;
+      const gate = zone ? App.ZONE_GATES[zone] : undefined;
+      if (gate && Math.hypot(gate.x - start.x, gate.z - start.z) > 1.2) {
+        const exit = await this.steerTo(gate, 16_000, undefined, onBlocked);
+        if (exit !== "arrived") return exit;
+      }
+    }
     const waypoint = App.WAYPOINTS[anchor.id];
     if (waypoint) {
       const status = await this.steerTo(
