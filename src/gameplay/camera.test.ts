@@ -93,7 +93,7 @@ describe("follow camera stays usable everywhere", () => {
       const character = sys.getActivePosition();
       expect(Math.abs(target.x)).toBeLessThanOrEqual(DECK_BOUNDS.halfX + 1.5);
       expect(Math.abs(target.z)).toBeLessThanOrEqual(DECK_BOUNDS.halfZ + 1.5);
-      expect(target.y).toBeGreaterThanOrEqual(1.4);
+      expect(target.y).toBeGreaterThanOrEqual(1.45);
       expect(insideAnyCollider(target.x, target.z, world.result.colliders, CHARACTER_RADIUS)).toBe(false);
 
       minHeight = Math.min(minHeight, target.y);
@@ -127,11 +127,17 @@ describe("follow camera stays usable everywhere", () => {
 describe("follow camera survives extreme aspect ratios", () => {
   const names = ["cloud", "automaton", "courier", "guardian"];
   const viewports: Array<[number, number]> = [[640, 400], [1280, 720], [3440, 1440]];
-  const RIG = { distance: 12.5, fov: 58, polar: 1.02 }; // main.ts rig (c0df854)
+  const RIG = { base: 12.5, fov: 58, polar: 1.02 }; // main.ts rig (c0df854 + viewport scaling)
+
+  function rigDistance(height: number): number {
+    // main.ts rigDistance(): clamp(12.5 * clamp(height/720, 0.5, 1), 5, 26).
+    return Math.max(5, Math.min(26, RIG.base * Math.max(0.5, Math.min(1, height / 720))));
+  }
 
   function rigCamera(target: THREE.Vector3, width: number, height: number): THREE.PerspectiveCamera {
+    const distance = rigDistance(height);
     const camera = new THREE.PerspectiveCamera(RIG.fov, width / height, 0.25, 240);
-    camera.position.set(target.x, target.y + RIG.distance * Math.cos(RIG.polar), target.z + RIG.distance * Math.sin(RIG.polar));
+    camera.position.set(target.x, target.y + distance * Math.cos(RIG.polar), target.z + distance * Math.sin(RIG.polar));
     camera.lookAt(target);
     camera.updateMatrixWorld();
     camera.updateProjectionMatrix();
@@ -174,7 +180,7 @@ describe("follow camera survives extreme aspect ratios", () => {
         for (let settle = 0; settle < 120; settle++) sys.update(FRAME);
 
         const target = sys.getCameraTarget!().clone();
-        expect(target.y).toBeGreaterThanOrEqual(1.4);
+        expect(target.y).toBeGreaterThanOrEqual(1.45);
         expect(Math.abs(target.x)).toBeLessThanOrEqual(DECK_BOUNDS.halfX + 1.5);
         expect(Math.abs(target.z)).toBeLessThanOrEqual(DECK_BOUNDS.halfZ + 1.5);
         expect(insideAnyCollider(target.x, target.z, world.result.colliders, CHARACTER_RADIUS)).toBe(false);
@@ -190,7 +196,7 @@ describe("follow camera survives extreme aspect ratios", () => {
         });
       }
       console.log(`${names[index]}: min target y=${minY.toFixed(2)} m; projected px at 640x400=${worstPx[0]!.toFixed(0)}, 1280x720=${worstPx[1]!.toFixed(0)}, 3440x1440=${worstPx[2]!.toFixed(0)}`);
-      expect(worstPx[0]!).toBeGreaterThanOrEqual(40); // measured floor at 640×400 (see report)
+      expect(worstPx[0]!).toBeGreaterThanOrEqual(60); // viewport-scaled rig keeps ≥60 px
       expect(worstPx[1]!).toBeGreaterThanOrEqual(60);
       expect(worstPx[2]!).toBeGreaterThanOrEqual(60);
       sys.dispose();
