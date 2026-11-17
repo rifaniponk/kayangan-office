@@ -30,13 +30,13 @@ export function buildAutomaton(): Avatar {
   bodyMesh.scale.set(1, 0.92, 0.9);
   const hip = mesh(torso, new THREE.CylinderGeometry(0.2, 0.22, 0.14, 16), shellDarkMat, 0, -0.34, 0, true);
   const face = pivot(torso, 0, 0.02, 0.32);
-  const facePlate = mesh(face, new THREE.CircleGeometry(0.24, 24), outlineMat, 0, 0, 0, true);
-  mesh(face, new THREE.CircleGeometry(0.2, 24), faceMat, 0, 0, 0.012);
+  const facePlate = mesh(face, new THREE.CircleGeometry(0.3, 24), outlineMat, 0, 0, 0, true);
+  mesh(face, new THREE.CircleGeometry(0.26, 24), faceMat, 0, 0, 0.012);
   mesh(face, sphere(0.05, 10, 6), outlineMat, -0.09, 0.05, 0.02);
   mesh(face, sphere(0.05, 10, 6), outlineMat, 0.09, 0.05, 0.02);
 
   const antenna = pivot(torso, 0, 0.33, -0.05);
-  mesh(antenna, new THREE.CylinderGeometry(0.02, 0.02, 0.22, 8), jointMat, 0, 0.11, 0);
+  mesh(antenna, new THREE.CylinderGeometry(0.02, 0.02, 0.5, 8), jointMat, 0, 0.11, 0);
   const tip = mesh(antenna, sphere(0.05, 12, 8), tipMat, 0, 0.24, 0);
 
   const armL = pivot(torso, -0.42, 0.02, 0);
@@ -69,7 +69,7 @@ export function buildAutomaton(): Avatar {
 
   return {
     id: "automaton",
-    height: 1.3,
+    height: 1.5,
     root,
     animate(state: CharacterState, clock: number, dt: number, speedRatio: number, gesture: number): void {
       // Servo pauses: head snaps to a new tick angle every ~1.6 s when idle.

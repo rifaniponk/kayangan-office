@@ -44,7 +44,7 @@ export function buildGuardian(): Avatar {
     { x: 0.02, y: 0.32, z: -0.16, tilt: 0.2 },
   ];
   for (const spot of leafSpots) {
-    const leaf = mesh(head, new THREE.ConeGeometry(0.08, 0.22, 8), leafMat, spot.x, spot.y, spot.z);
+    const leaf = mesh(head, new THREE.ConeGeometry(0.08, 0.42, 8), leafMat, spot.x, spot.y, spot.z);
     leaf.rotation.set(spot.tilt, spot.tilt * 0.6, spot.tilt);
     leaves.push(leaf);
   }
@@ -65,9 +65,9 @@ export function buildGuardian(): Avatar {
     const foot = mesh(leg, new THREE.BoxGeometry(0.32, 0.14, 0.44), stoneMat, 0, -0.28, 0.08);
     footMeshes.push(foot);
   }
-  const sideLeaf = mesh(body, new THREE.ConeGeometry(0.1, 0.26, 8), leafMat, -0.42, 0.62, 0.18);
+  const sideLeaf = mesh(body, new THREE.ConeGeometry(0.11, 0.32, 8), leafMat, -0.42, 0.62, 0.18);
   sideLeaf.rotation.z = 0.9;
-  const sideLeaf2 = mesh(body, new THREE.ConeGeometry(0.1, 0.26, 8), leafMat, 0.44, 0.56, -0.14);
+  const sideLeaf2 = mesh(body, new THREE.ConeGeometry(0.11, 0.32, 8), leafMat, 0.44, 0.56, -0.14);
   sideLeaf2.rotation.z = -0.9;
 
   return {

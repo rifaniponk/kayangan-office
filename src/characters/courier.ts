@@ -27,12 +27,12 @@ export function buildCourier(): Avatar {
   body.position.y = 0.6;
   root.add(body);
 
-  const torso = mesh(body, sphere(0.34, 24, 16), bodyMat, 0, 0, 0, true);
+  const torso = mesh(body, sphere(0.4, 24, 16), bodyMat, 0, 0, 0, true);
   torso.scale.set(0.9, 1.15, 1.05);
-  const tail = mesh(body, sphere(0.24, 18, 12), bodyDarkMat, 0, 0.02, -0.22, true).scale.set(0.8, 1, 0.7); // tail
+  const tail = mesh(body, sphere(0.28, 18, 12), bodyDarkMat, 0, 0.02, -0.24, true).scale.set(0.8, 1, 0.7); // tail
   const head = pivot(body, 0, 0.42, 0.14);
-  mesh(head, sphere(0.22, 20, 14), bodyMat, 0, 0, 0);
-  const crest = mesh(head, new THREE.ConeGeometry(0.12, 0.34, 10), crestMat, 0, 0.14, -0.08);
+  mesh(head, sphere(0.26, 20, 14), bodyMat, 0, 0, 0);
+  const crest = mesh(head, new THREE.ConeGeometry(0.14, 0.5, 10), crestMat, 0, 0.14, -0.08);
   crest.rotation.x = -Math.PI / 2.4; // swept back
   const beak = mesh(head, new THREE.ConeGeometry(0.08, 0.2, 8), beakMat, 0, -0.02, 0.26);
   beak.rotation.x = Math.PI / 2;
@@ -42,7 +42,7 @@ export function buildCourier(): Avatar {
   const wingL = pivot(body, -0.32, 0.06, 0);
   const wingR = pivot(body, 0.32, 0.06, 0);
   for (const wing of [wingL, wingR]) {
-    const feather = mesh(wing, sphere(0.26, 16, 10), bodyDarkMat, 0, 0, 0, true);
+    const feather = mesh(wing, sphere(0.3, 16, 10), bodyDarkMat, 0, 0, 0, true);
     feather.scale.set(0.35, 0.14, 0.62);
     feather.rotation.x = -0.25;
   }
