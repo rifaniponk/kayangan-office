@@ -107,9 +107,9 @@ export function buildMeeting(kit: MaterialKit, geo: GeoCache): MeetingZone {
   const setDisplay = (state: 0 | 1 | 2): void => {
     chart.visible = state === 1;
     plan.visible = state === 2;
-    kit.screenBoard.color.set(state === 0 ? 0x22303a : 0x31424d);
-    kit.screenBoard.emissive.set(state === 0 ? 0x000000 : 0x1d4a55);
-    kit.screenBoard.emissiveIntensity = state === 0 ? 0 : 0.5;
+    kit.screenBoard.color.set(state === 0 ? 0x2e424e : 0x31424d);
+    kit.screenBoard.emissive.set(state === 0 ? 0x0e2a33 : 0x1d4a55);
+    kit.screenBoard.emissiveIntensity = state === 0 ? 0.35 : 0.5;
   };
 
   return { group, colliders, setDisplay };

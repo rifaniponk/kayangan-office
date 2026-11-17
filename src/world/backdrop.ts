@@ -25,7 +25,7 @@ export function buildBackdrop(kit: MaterialKit): Backdrop {
     const loader = new THREE.TextureLoader();
     map = loader.load("/assets/world/cloud-horizon.webp");
     map.colorSpace = THREE.SRGBColorSpace;
-    skyMat = new THREE.MeshBasicMaterial({ map, toneMapped: false, color: 0xe3e3e7 });
+    skyMat = new THREE.MeshBasicMaterial({ map, toneMapped: false, color: 0xe2e6ea, fog: false }); // fog:false keeps the horizon art out of the fog wash
     sky = new THREE.Mesh(new THREE.PlaneGeometry(300, 150), skyMat);
     sky.position.set(0, 34, -120); // faces +z toward the camera
     group.add(sky);
@@ -48,7 +48,7 @@ export function buildBackdrop(kit: MaterialKit): Backdrop {
   }
 
   const setSkyView = (on: boolean): void => {
-    kit.cloud.opacity = on ? 0.3 : 0.16;
+    kit.cloud.opacity = on ? 0.28 : 0.17;
     layers.forEach((l, i) => {
       l.position.y = layerDefs[i]![1] + (on ? 2.5 + i : 0);
     });

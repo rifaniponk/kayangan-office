@@ -123,7 +123,7 @@ export function createMaterialKit(): MaterialKit {
   const cloud = new THREE.MeshBasicMaterial({
     color: PALETTE.cloudWhite,
     transparent: true,
-    opacity: 0.16,
+    opacity: 0.17,
     depthWrite: false,
   });
   disposables.push(cloud);
