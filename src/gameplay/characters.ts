@@ -26,8 +26,14 @@ const CAMERA_TARGET_MIN_Y = 1.45;
  * movement, collider sliding, deck containment, nearest-interactable
  * prompt, one-shot `E` activation via world.interact, smoothed camera
  * target + facing yaw, and reset-to-spawn if a character leaves the deck.
+ * `setMoveAxis` is the on-screen control entry point: it feeds the same
+ * camera-relative movement path as the keyboard, clamped to unit length.
  */
-export function createCharacters(world: World, input: InputSource): CharacterSystem {
+export type CharacterSystemWithTouch = CharacterSystem & {
+  setMoveAxis(x: number, z: number): void;
+};
+
+export function createCharacters(world: World, input: InputSource): CharacterSystemWithTouch {
   const group = new THREE.Group();
   group.name = "characters";
   const colliders = world.result.colliders;
@@ -51,6 +57,7 @@ export function createCharacters(world: World, input: InputSource): CharacterSys
   let interactHeld = false;
   let nearest: Interactable | null = null;
   let state: CharacterState = "idle";
+  let moveAxis: Vec2 = { x: 0, z: 0 }; // on-screen control axis (camera-relative)
   let lastInteraction: WorldInteraction | null = null;
   /** Follow-camera anchor height: head height with clear deck margin. */
   const headY = (index: number): number =>
@@ -66,6 +73,17 @@ export function createCharacters(world: World, input: InputSource): CharacterSys
     group,
     get activeIndex(): number {
       return activeIndex;
+    },
+    setMoveAxis(x: number, z: number): void {
+      // Same camera-relative semantics as the keyboard path, clamped to
+      // unit length so a diagonal request never exceeds the walk speed.
+      const len = Math.hypot(x, z);
+      if (len === 0) {
+        moveAxis = { x: 0, z: 0 };
+        return;
+      }
+      const scale = Math.min(1, len) / len;
+      moveAxis = { x: x * scale, z: z * scale };
     },
     select(index: number): void {
       const next = Math.max(0, Math.min(CHARACTER_IDS.length - 1, Math.floor(index)));
@@ -93,7 +111,7 @@ export function createCharacters(world: World, input: InputSource): CharacterSys
       const avatar = avatars[activeIndex]!;
       const pos = positions[activeIndex]!;
 
-      const axis = input.axis();
+      const axis = moveAxis.x !== 0 || moveAxis.z !== 0 ? moveAxis : input.axis();
       const dir = cameraRelativeAxis(axis, input.cameraYaw());
       const speed = SPEEDS[id]!;
       const moving = dir.x !== 0 || dir.z !== 0;

@@ -190,6 +190,50 @@ describe("character system", () => {
     sys.dispose();
   });
 
+  it("setMoveAxis drives movement like the keyboard, clamped and normalised", () => {
+    const { world } = makeWorld();
+    let yaw = 0;
+    const input = makeInput({ yaw: () => yaw });
+    const sys = createCharacters(world, input);
+    sys.select(2); // courier spawn (3.5, 6), speed 3.6
+    const spawn = sys.getActivePosition().clone();
+    sys.setMoveAxis(0, -1);
+    step(sys, 60); // 1 s straight "forward" at yaw 0 -> world -z
+    const south = sys.getActivePosition();
+    expect(south.z).toBeLessThan(spawn.z - 3.0); // ~3.6 m south
+    expect(Math.abs(south.x - spawn.x)).toBeLessThan(0.3);
+    console.log(`setMoveAxis(0,-1) @yaw0: ${(spawn.z - south.z).toFixed(2)} m in 1 s (speed 3.6)`);
+
+    yaw = Math.PI / 2; // camera faces -x: same button moves world -x
+    step(sys, 60);
+    const west = sys.getActivePosition();
+    expect(west.x).toBeLessThan(south.x - 3.0);
+    expect(Math.abs(west.z - south.z)).toBeLessThan(0.3);
+    console.log(`setMoveAxis(0,-1) @yaw90: ${(south.x - west.x).toFixed(2)} m west in 1 s`);
+
+    sys.setMoveAxis(1, 1); // diagonal must be normalised: speed unchanged
+    const before = sys.getActivePosition().clone();
+    step(sys, 60);
+    const diag = sys.getActivePosition().distanceTo(before);
+    expect(diag).toBeGreaterThan(3.4);
+    expect(diag).toBeLessThan(3.75);
+    console.log(`setMoveAxis(1,1) normalised: ${diag.toFixed(2)} m/s (speed 3.6)`);
+
+    sys.setMoveAxis(5, 5); // over-long request clamps to unit length
+    const before2 = sys.getActivePosition().clone();
+    step(sys, 60);
+    const clamped = sys.getActivePosition().distanceTo(before2);
+    expect(clamped).toBeGreaterThan(3.4);
+    expect(clamped).toBeLessThan(3.75); // never exceeds walk speed
+    console.log(`setMoveAxis(5,5) clamped: ${clamped.toFixed(2)} m/s (cap 3.6)`);
+
+    sys.setMoveAxis(0, 0); // stop
+    const before3 = sys.getActivePosition().clone();
+    step(sys, 60);
+    expect(sys.getActivePosition().distanceTo(before3)).toBe(0);
+    sys.dispose();
+  });
+
   it("movement follows the camera yaw, not world axes", () => {
     const { world } = makeWorld();
     let yaw = Math.PI / 2; // camera faces -x: pressing forward must travel -x
