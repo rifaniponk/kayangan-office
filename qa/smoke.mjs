@@ -143,7 +143,10 @@ const report = await runPage(
     );
 
     // On-screen Interact button activates the nearest anchor.
+    await session.evaluate("window.KAYANGAN.restart()");
+    await wait(400);
     const padInteract = await session.runAsync("window.KAYANGAN.walkTo('desk-monitor')").then((r) => r.value);
+    await session.evaluate("document.getElementById('toast').textContent = ''");
     await session.evaluate(
       "(() => { const b = document.getElementById('interact-button'); b.dispatchEvent(new PointerEvent('pointerdown', { pointerId: 1, bubbles: true })); b.dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, bubbles: true })); })()",
     );
@@ -152,8 +155,8 @@ const report = await runPage(
     const padState = await session.evaluate("window.KAYANGAN.debug().state");
     push(
       "on-screen Interact button activates the zone",
-      padInteract.includes("arrived") && String(padToast).length > 0 && padState === "interact",
-      `${padInteract} / toast=${String(padToast).slice(0, 40)} / state=${padState}`,
+      padInteract.includes("arrived") && String(padToast).toLowerCase().includes("monitor") && padState === "interact",
+      `${padInteract} / toast=${String(padToast).slice(0, 46)} / state=${padState}`,
     );
 
     // Pause keeps positions still; resume continues.
