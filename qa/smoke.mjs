@@ -24,6 +24,8 @@ const report = await runPage(
 
     await session.call("Runtime.enable")
     await session.waitFor();
+    // The module boots a beat after dev-server reloads; wait for the API.
+    await session.waitFor("window.KAYANGAN !== undefined && document.getElementById('play-button')", 20_000);
     await session.call("Log.enable");
 
     // Play action, through the real button.

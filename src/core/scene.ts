@@ -29,7 +29,10 @@ export function createStage(canvas: HTMLCanvasElement, mode: QualityMode = "high
   let renderer = buildRenderer(canvas, mode);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0xdfe8f2, 42, 140);
+  // Sky values sampled from design/kayangan-office-concept-v2.png (qa/art/probe-concept.json):
+  // upper band #afbdda..#dddae6. Kept out of fog influence so the backdrop stays readable.
+  scene.background = new THREE.Color(0xd9e3ee);
+  scene.fog = new THREE.Fog(0xe3ebf3, 55, 165);
   const camera = new THREE.PerspectiveCamera(52, 1, 0.25, 240);
 
   let dpr = DPR[mode];
@@ -57,6 +60,7 @@ export function createStage(canvas: HTMLCanvasElement, mode: QualityMode = "high
   function dispose(): void {
     renderer.dispose();
     scene.fog = null;
+    scene.background = null;
     scene.clear();
   }
 

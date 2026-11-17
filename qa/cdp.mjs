@@ -97,10 +97,12 @@ export async function connect(page, port) {
     },
     async waitFor(selector = "#viewport", timeoutMs = 20_000) {
       const deadline = Date.now() + timeoutMs;
+      const isExpression = selector.includes("(") || selector.includes("!==") || selector.includes(" && ");
       while (Date.now() < deadline) {
-        const ready = await this.evaluate(
-          `document.readyState === 'complete' && document.querySelector(${JSON.stringify(selector)}) !== null`,
-        );
+        const probe = isExpression
+          ? `document.readyState === 'complete' && Boolean(${selector})`
+          : `document.readyState === 'complete' && document.querySelector(${JSON.stringify(selector)}) !== null`;
+        const ready = await this.evaluate(probe);
         if (ready) return true;
         await new Promise((resolve) => setTimeout(resolve, 250));
       }
