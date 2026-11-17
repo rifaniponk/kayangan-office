@@ -20,7 +20,7 @@ export type Overlay = {
   picker: HTMLElement;
   playButton: HTMLButtonElement;
   hud: HTMLElement;
-  toast: HTMLElement;
+  toastPanel: HTMLElement;
   stats: HTMLElement;
   errorBanner: HTMLElement;
   qaReport: HTMLElement;
@@ -47,7 +47,7 @@ export function createOverlay(): Overlay {
   const picker = q("character-picker");
   const playButton = q<HTMLButtonElement>("play-button");
   const hud = q("hud");
-  const toast = q("toast");
+  const toastPanel = q("toast");
   const stats = q("stats");
   const errorBanner = q("error-banner");
   const qaReport = q("qa-report");
@@ -119,10 +119,10 @@ export function createOverlay(): Overlay {
   }
 
   function toast(text: string): void {
-    toast.textContent = text;
-    toast.classList.remove("hidden");
+    toastPanel.textContent = text;
+    toastPanel.classList.remove("hidden");
     window.clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(() => toast.classList.add("hidden"), 3200);
+    toastTimer = window.setTimeout(() => toastPanel.classList.add("hidden"), 3200);
   }
 
   function setStats(values: Record<string, string>): void {
@@ -166,7 +166,7 @@ export function createOverlay(): Overlay {
     picker,
     playButton,
     hud,
-    toast,
+    toastPanel,
     stats,
     errorBanner,
     qaReport,
