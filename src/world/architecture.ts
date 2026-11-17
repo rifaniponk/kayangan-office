@@ -91,6 +91,22 @@ export function buildArchitecture(kit: MaterialKit, geo: GeoCache): Architecture
   postMesh.name = "rail-posts";
   group.add(postMesh);
 
+  // Bronze door-frame posts flanking the meeting-room doorway (gap stays
+  // 2.04 m between post boxes — audit-verified ≥1.8 m).
+  const frameGeo = geo.cyl(0.07, 0.07, 2.6, 10);
+  const frame = new THREE.InstancedMesh(frameGeo, kit.bronze, 2);
+  const fm = new THREE.Matrix4();
+  frame.setMatrixAt(0, fm.makeTranslation(-7.06, 1.3, -2.0));
+  frame.setMatrixAt(1, fm.makeTranslation(-4.9, 1.3, -2.0));
+  frame.instanceMatrix.needsUpdate = true;
+  frame.castShadow = true;
+  frame.name = "door-frame";
+  group.add(frame);
+  colliders.push(
+    { x: -7.06, z: -2.0, width: 0.14, depth: 0.3 },
+    { x: -4.9, z: -2.0, width: 0.14, depth: 0.3 },
+  );
+
   // Merged static rails: two meshes instead of thirteen.
   const mergedBronze = mergeGeometries(bronzeGeos);
   bronzeGeos.forEach((g) => g.dispose());
