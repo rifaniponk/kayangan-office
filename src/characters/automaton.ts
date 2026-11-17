@@ -87,7 +87,13 @@ export function buildAutomaton(): Avatar {
         faceMat.emissiveIntensity = 1.5 + Math.sin(clock * 8) * 0.3 + gestureArc(gesture) * 1.6;
       }
       tipMat.emissiveIntensity = 1.2 + Math.sin(clock * 3.1) * 0.5;
-      antenna.rotation.z = Math.sin(clock * 2.6) * 0.08;
+
+      // Servo "salute": arms snap up, head tilts, antenna tips forward —
+      // distinct from cloud's reach-up, courier's wing-spread, guardian's rustle.
+      // Direct pose assignment while the gesture holds; idle damping resumes
+      // the moment gesture hits 0, so the pose is fully idle by 1.1 s.
+      const bow = gestureArc(gesture);
+      antenna.rotation.z = Math.sin(clock * 2.6) * 0.08 + bow * 0.35;
 
       const cadence = clock * (3.4 + 2.2 * speedRatio);
       if (state === "move") {
@@ -105,8 +111,12 @@ export function buildAutomaton(): Avatar {
         armR.rotation.x += (0 - armR.rotation.x) * Math.min(1, dt * 8);
         torso.position.y = 0.86 + Math.sin(clock * 1.3) * 0.015;
         torso.rotation.y = Math.sin(clock * 0.6) * 0.05;
+        if (bow > 0) {
+          armL.rotation.x = -bow * 0.9; // gesture overrides idle damping
+          armR.rotation.x = bow * 0.9;
+          face.rotation.y = bow * 0.5;
+        }
       }
-      const bow = gestureArc(gesture);
       torso.rotation.x = bow * 0.35 + (state === "move" ? 0.08 * speedRatio : 0);
       torso.scale.set(1 + bow * 0.06, 1 - bow * 0.05, 1);
       bodyMesh.position.z = bow * 0.05;
