@@ -14,7 +14,12 @@ const viewport = process.argv[5] ? process.argv[5].split("x").map(Number) : null
 const hide = process.argv[6] ? process.argv[6].split(",") : [];
 
 const result = await runPage(
-  { port: Number(process.env.KAYANGAN_DEBUG_PORT ?? 9336) + (process.pid % 40), url, timeoutMs: seconds * 1000 + 60_000 },
+  {
+    port: Number(process.env.KAYANGAN_DEBUG_PORT ?? 9336) + (process.pid % 40),
+    url,
+    args: ["--js-flags=--expose-gc"],
+    timeoutMs: seconds * 1000 + 60_000,
+  },
   async (session) => {
     await session.waitFor();
     if (viewport) {
@@ -28,7 +33,23 @@ const result = await runPage(
     await session.evaluate(`window.KAYANGAN.start('${quality}')`);
     for (const name of hide) await session.evaluate(`window.KAYANGAN.debugVisible('${name}', false)`);
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    const sample = await session.runAsync(`window.KAYANGAN.walkSample(${seconds})`, seconds * 1000 + 30_000);
+    const heapPoll =
+      "(() => { if (window.gc) window.gc(); return performance.memory ? performance.memory.usedJSHeapSize : null; })()";
+    const sample = await session.runAsync(
+      `window.KAYANGAN.walkSample(${seconds})`,
+      seconds * 1000 + 30_000,
+      heapPoll,
+    );
+    const heapSamples = sample.samples.filter((value) => typeof value === "number");
+    const heapTrend = heapSamples.length > 1
+      ? {
+          samples: heapSamples.length,
+          firstBytes: heapSamples[0],
+          lastBytes: heapSamples[heapSamples.length - 1],
+          peakBytes: Math.max(...heapSamples),
+          deltaBytes: heapSamples[heapSamples.length - 1] - heapSamples[0],
+        }
+      : null;
     const idle = await session.evaluate("JSON.stringify(window.KAYANGAN.metrics())");
     return JSON.stringify({
       quality,
@@ -37,6 +58,7 @@ const result = await runPage(
       hiddenGroups: hide,
       moving: sample.value,
       idleSnapshot: JSON.parse(idle),
+      heapTrend,
       errors: JSON.parse(await session.evaluate("JSON.stringify(window.KAYANGAN.errors())")),
     });
   },
@@ -58,6 +80,7 @@ console.log(
       frames: parsed.moving.snapshot.frames,
       drawCalls: parsed.moving.snapshot.medianCalls,
       triangles: parsed.moving.snapshot.medianTriangles,
+      heapTrend: parsed.heapTrend,
       errors: parsed.errors,
     },
     null,
