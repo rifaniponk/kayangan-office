@@ -17,7 +17,7 @@ const wait = (ms) => new Promise((resolve_) => setTimeout(resolve_, ms));
 const read = async (session) => JSON.parse(await session.evaluate("JSON.stringify(window.KAYANGAN.debug())"));
 
 const report = await runPage(
-  { port: 9335, url, timeoutMs: 150_000 },
+  { port: Number(process.env.KAYANGAN_DEBUG_PORT ?? $9335) + (process.pid % 40), url, timeoutMs: 150_000 },
   async (session, stderr) => {
     const checks = [];
     const push = (check, pass, detail) => checks.push({ check, pass: Boolean(pass), detail: String(detail).slice(0, 220) });
