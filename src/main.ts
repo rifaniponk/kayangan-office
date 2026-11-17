@@ -426,7 +426,9 @@ class App {
   private tick(now: number): void {
     if (!this.playing || this.paused || document.hidden) return;
     const elapsed = this.frameClock === 0 ? 16.7 : now - this.frameClock;
-    const delta = Math.min(0.05, elapsed / 1000 || 0.016);
+    // Match the gameplay cap (MAX_DT = 0.1 s). Clamping tighter would make the
+    // simulation run slower than real time whenever the frame rate drops.
+    const delta = Math.min(0.1, elapsed / 1000 || 0.016);
     this.frameClock = now;
     this.characters?.update(delta);
     this.followCamera(delta);
