@@ -150,7 +150,20 @@ class App {
       else stuckFrames = 0;
       if (stuckFrames >= 12 && detourFrames === 0) {
         stuckFrames = 0;
-        detourFrames = 30;
+        // Pick the side that actually has room, using the world's colliders.
+        const colliders = this.world?.result.colliders ?? [];
+        const radius = 0.55;
+        const free = (sx: number, sz: number) =>
+          !colliders.some((c) => {
+            const cx = Math.max(c.x - c.width / 2, Math.min(c.x + c.width / 2, sx));
+            const cz = Math.max(c.z - c.depth / 2, Math.min(c.z + c.depth / 2, sz));
+            return (sx - cx) ** 2 + (sz - cz) ** 2 < radius * radius;
+          });
+        const probe = 0.6;
+        const east = free(position.x - axis.z * probe, position.z + axis.x * probe);
+        const west = free(position.x + axis.z * probe, position.z - axis.x * probe);
+        detourSign = east ? 1 : west ? -1 : 1;
+        detourFrames = 24;
       }
       if (blocked && samples % 8 === 0) onSample?.(position, true);
       else if (samples % 8 === 0) onSample?.(position, false);
@@ -466,7 +479,7 @@ class App {
       routeSeconds += 1.5;
       await sleep(1500);
       for (const anchor of world.result.interactables) {
-        const status = await this.steerTo(anchor, 14_000, undefined, () => {
+        const status = await this.steerTo(anchor, 22_000, undefined, () => {
           blockedSteps += 1;
         });
         routeSeconds += 3;
