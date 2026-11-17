@@ -15,10 +15,18 @@ export interface Avatar {
   dispose(): void;
 }
 
-export function mesh(parent: THREE.Group, geo: THREE.BufferGeometry, material: THREE.Material, x = 0, y = 0, z = 0): THREE.Mesh {
+export function mesh(
+  parent: THREE.Group,
+  geo: THREE.BufferGeometry,
+  material: THREE.Material,
+  x = 0,
+  y = 0,
+  z = 0,
+  casts = false,
+): THREE.Mesh {
   const m = new THREE.Mesh(geo, material);
   m.position.set(x, y, z);
-  m.castShadow = true;
+  m.castShadow = casts; // only the big silhouette meshes join the shadow pass
   parent.add(m);
   return m;
 }

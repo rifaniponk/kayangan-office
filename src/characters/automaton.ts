@@ -26,11 +26,11 @@ export function buildAutomaton(): Avatar {
   torso.position.y = 0.86;
   root.add(torso);
 
-  const bodyMesh = mesh(torso, sphere(0.36, 24, 16), shellMat, 0, 0, 0);
+  const bodyMesh = mesh(torso, sphere(0.36, 24, 16), shellMat, 0, 0, 0, true);
   bodyMesh.scale.set(1, 0.92, 0.9);
-  mesh(torso, new THREE.CylinderGeometry(0.2, 0.22, 0.14, 16), shellDarkMat, 0, -0.34, 0);
+  const hip = mesh(torso, new THREE.CylinderGeometry(0.2, 0.22, 0.14, 16), shellDarkMat, 0, -0.34, 0, true);
   const face = pivot(torso, 0, 0.02, 0.32);
-  mesh(face, new THREE.CircleGeometry(0.24, 24), outlineMat, 0, 0, 0);
+  const facePlate = mesh(face, new THREE.CircleGeometry(0.24, 24), outlineMat, 0, 0, 0, true);
   mesh(face, new THREE.CircleGeometry(0.2, 24), faceMat, 0, 0, 0.012);
   mesh(face, sphere(0.05, 10, 6), outlineMat, -0.09, 0.05, 0.02);
   mesh(face, sphere(0.05, 10, 6), outlineMat, 0.09, 0.05, 0.02);
@@ -93,7 +93,7 @@ export function buildAutomaton(): Avatar {
       // Direct pose assignment while the gesture holds; idle damping resumes
       // the moment gesture hits 0, so the pose is fully idle by 1.1 s.
       const bow = gestureArc(gesture);
-      antenna.rotation.z = Math.sin(clock * 2.6) * 0.08 + bow * 0.35;
+      antenna.rotation.z = Math.sin(clock * 2.6) * 0.14 + bow * 0.35;
 
       const cadence = clock * (3.4 + 2.2 * speedRatio);
       if (state === "move") {
@@ -109,7 +109,7 @@ export function buildAutomaton(): Avatar {
         legR.rotation.x += (0 - legR.rotation.x) * Math.min(1, dt * 8);
         armL.rotation.x += (0 - armL.rotation.x) * Math.min(1, dt * 8);
         armR.rotation.x += (0 - armR.rotation.x) * Math.min(1, dt * 8);
-        torso.position.y = 0.86 + Math.sin(clock * 1.3) * 0.015;
+        torso.position.y = 0.86 + Math.sin(clock * 1.3) * 0.03;
         torso.rotation.y = Math.sin(clock * 0.6) * 0.05;
         if (bow > 0) {
           armL.rotation.x = -bow * 0.9; // gesture overrides idle damping

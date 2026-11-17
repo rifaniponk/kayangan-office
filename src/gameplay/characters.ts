@@ -43,10 +43,11 @@ export function createCharacters(world: World, input: InputSource): CharacterSys
   );
   const spawns: Vec2[] = positions.map((p) => ({ x: p.x, z: p.z }));
   const facingYaw: number[] = CHARACTER_IDS.map(() => 0);
+  // All four avatars stay visible: the office must always show the group,
+  // not just the selected character.
   avatars.forEach((avatar, i) => {
     avatar.root.position.set(positions[i]!.x, 0, positions[i]!.z);
     group.add(avatar.root);
-    avatar.root.visible = i === 0;
   });
 
   let activeIndex = 0;
@@ -88,9 +89,6 @@ export function createCharacters(world: World, input: InputSource): CharacterSys
       const next = Math.max(0, Math.min(CHARACTER_IDS.length - 1, Math.floor(index)));
       if (next === activeIndex) return;
       activeIndex = next;
-      avatars.forEach((avatar, i) => {
-        avatar.root.visible = i === next;
-      });
       // Retained position is re-validated against current props (props may
       // have moved between switches); never place a character inside a prop.
       const safe = resolveSafeSpawn(positions[next]!.x, positions[next]!.z, colliders, CHARACTER_RADIUS, DECK_BOUNDS);
@@ -176,10 +174,13 @@ export function createCharacters(world: World, input: InputSource): CharacterSys
 
       state = gestureTimer > 0 ? "interact" : moving ? "move" : "idle";
       const speedRatio = moving ? Math.min(1, Math.hypot(dirX, dirZ)) : 0;
+      for (let i = 0; i < avatars.length; i++) {
+        if (i === activeIndex) continue;
+        avatars[i]!.animate("idle", clock, dt, 0, 0);
+      }
       avatar.animate(state, clock, dt, speedRatio, gestureTimer / GESTURE_SECONDS);
-      // Hidden avatars keep their last pose; animating them would burn CPU
-      // on meshes nobody can see. They resume instantly on select (poses are
-      // pure functions of `clock`).
+      // Inactive avatars keep breathing in view (idle motion is a pure
+      // function of `clock`, so switching is instant and costs nothing).
 
       desiredTarget.set(pos.x, headY(activeIndex), pos.z);
       cameraTarget.lerp(desiredTarget, 1 - Math.exp(-dt * CAMERA_SMOOTHING));

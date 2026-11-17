@@ -26,12 +26,12 @@ export function buildGuardian(): Avatar {
   const body = new THREE.Group();
   root.add(body);
 
-  const lower = mesh(body, sphere(0.48, 24, 16), stoneMat, 0, 0.42, 0);
+  const lower = mesh(body, sphere(0.48, 24, 16), stoneMat, 0, 0.42, 0, true);
   lower.scale.set(1.1, 0.85, 0.95);
-  const chest = mesh(body, sphere(0.4, 22, 14), stoneLightMat, 0, 0.92, 0);
+  const chest = mesh(body, sphere(0.4, 22, 14), stoneLightMat, 0, 0.92, 0, true);
   chest.scale.set(1.05, 0.85, 0.9);
   const head = pivot(body, 0, 1.32, 0.02);
-  const headMesh = mesh(head, sphere(0.3, 22, 14), stoneMat, 0, 0, 0);
+  const headMesh = mesh(head, sphere(0.3, 22, 14), stoneMat, 0, 0, 0, true);
   headMesh.scale.set(1, 0.88, 0.95);
   const mossCap = mesh(head, sphere(0.32, 22, 12), mossMat, 0, 0.12, 0.02);
   mossCap.scale.set(0.95, 0.5, 0.95);

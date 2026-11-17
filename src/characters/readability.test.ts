@@ -64,7 +64,10 @@ describe("avatars are readable at the closest legal camera distances", () => {
     const coverage = AVATAR_BUILDERS.map((build) => castCoverage(build));
     coverage.forEach((c, i) => {
       expect(c.meshes, `${names[i]} has meshes`).toBeGreaterThan(0);
-      expect(c.casters, `${names[i]} shadow casters`).toBe(c.meshes);
+      // Silhouette meshes carry shadows; small parts skip the shadow pass
+      // so the whole group stays affordable while visible.
+      expect(c.casters >= 3, `${names[i]} shadow casters`).toBe(true);
+      expect(c.casters <= c.meshes, `${names[i]} casters subset`).toBe(true);
     });
   });
 
