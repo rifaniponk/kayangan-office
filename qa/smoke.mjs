@@ -155,9 +155,10 @@ const report = await runPage(
     await session.evaluate(
       "document.getElementById('interact-button').dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, bubbles: true }))",
     );
-    await wait(900);
-    const padToast = await session.evaluate("document.getElementById('toast').textContent");
+    await wait(300);
     const padState = await session.evaluate("window.KAYANGAN.debug().state");
+    await wait(600);
+    const padToast = await session.evaluate("document.getElementById('toast').textContent");
     push(
       "on-screen Interact button activates the zone",
       padInteract.includes("arrived") && String(padToast).toLowerCase().includes("monitor") && padState === "interact",
