@@ -18,6 +18,8 @@ const SPEEDS: Record<CharacterId, number> = { cloud: 3.2, automaton: 2.5, courie
 const MAX_DT = 0.1;
 const GESTURE_SECONDS = 0.9;
 const CAMERA_SMOOTHING = 6;
+/** Follow-camera targets never dip below deck level + headroom. */
+const CAMERA_TARGET_MIN_Y = 1.45;
 
 /**
  * Implements CharacterSystem: four retained positions, camera-relative
@@ -50,7 +52,11 @@ export function createCharacters(world: World, input: InputSource): CharacterSys
   let nearest: Interactable | null = null;
   let state: CharacterState = "idle";
   let lastInteraction: WorldInteraction | null = null;
-  const cameraTarget = new THREE.Vector3(positions[0]!.x, avatars[0]!.height * 0.8, positions[0]!.z);
+  /** Follow-camera anchor height: head height with clear deck margin. */
+  const headY = (index: number): number =>
+    Math.max(CAMERA_TARGET_MIN_Y, avatars[index]!.height * 0.8 + 0.45);
+
+  const cameraTarget = new THREE.Vector3(positions[0]!.x, headY(0), positions[0]!.z);
   const desiredTarget = new THREE.Vector3();
   let cameraYawSmoothed = 0;
 
@@ -73,7 +79,7 @@ export function createCharacters(world: World, input: InputSource): CharacterSys
       const safe = resolveSafeSpawn(positions[next]!.x, positions[next]!.z, colliders, CHARACTER_RADIUS, DECK_BOUNDS);
       positions[next] = safe;
       avatarPlace(next);
-      cameraTarget.set(safe.x, avatars[next]!.height * 0.8, safe.z);
+      cameraTarget.set(safe.x, headY(next), safe.z);
       cameraYawSmoothed = facingYaw[next]!;
       gestureTimer = 0;
       interactHeld = false;
@@ -120,7 +126,7 @@ export function createCharacters(world: World, input: InputSource): CharacterSys
         if (i !== activeIndex) avatars[i]!.animate("idle", clock, dt, 0, 0);
       }
 
-      desiredTarget.set(pos.x, avatars[activeIndex]!.height * 0.8, pos.z);
+      desiredTarget.set(pos.x, headY(activeIndex), pos.z);
       cameraTarget.lerp(desiredTarget, 1 - Math.exp(-dt * CAMERA_SMOOTHING));
       cameraYawSmoothed = lerpAngle(cameraYawSmoothed, facingYaw[activeIndex]!, 1 - Math.exp(-dt * 5));
     },
