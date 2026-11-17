@@ -122,9 +122,9 @@ export function createCharacters(world: World, input: InputSource): CharacterSys
       state = gestureTimer > 0 ? "interact" : moving ? "move" : "idle";
       const speedRatio = moving ? Math.min(1, Math.hypot(dir.x, dir.z)) : 0;
       avatar.animate(state, clock, dt, speedRatio, gestureTimer / GESTURE_SECONDS);
-      for (let i = 0; i < avatars.length; i++) {
-        if (i !== activeIndex) avatars[i]!.animate("idle", clock, dt, 0, 0);
-      }
+      // Hidden avatars keep their last pose; animating them would burn CPU
+      // on meshes nobody can see. They resume instantly on select (poses are
+      // pure functions of `clock`).
 
       desiredTarget.set(pos.x, headY(activeIndex), pos.z);
       cameraTarget.lerp(desiredTarget, 1 - Math.exp(-dt * CAMERA_SMOOTHING));
