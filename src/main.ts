@@ -524,7 +524,7 @@ class App {
       );
       if (status !== "arrived") return status;
     }
-    return this.steerTo(anchor, 22_000, undefined, onBlocked);
+    return this.steerTo(anchor, 30_000, undefined, onBlocked);
   }
 
   /** Deterministic full route: every character visits and activates every zone. */
