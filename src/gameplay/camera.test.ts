@@ -1,3 +1,4 @@
+import * as THREE from "three";
 import { describe, expect, it } from "vitest";
 import { createWorld } from "../world/index.js";
 import { createCharacters, DECK_BOUNDS } from "./index.js";
@@ -116,4 +117,83 @@ describe("follow camera stays usable everywhere", () => {
     expect(worstDist).toBeLessThan(2.5);
     sys.dispose();
   });
+});
+
+/**
+ * Window-resize usability: the smoothed follow-camera target must stay
+ * valid and the active avatar must stay readable at extreme aspect ratios
+ * (640×400, 1280×720, 3440×1440) at every character/spawn/anchor.
+ */
+describe("follow camera survives extreme aspect ratios", () => {
+  const names = ["cloud", "automaton", "courier", "guardian"];
+  const viewports: Array<[number, number]> = [[640, 400], [1280, 720], [3440, 1440]];
+  const RIG = { distance: 12.5, fov: 58, polar: 1.02 }; // main.ts rig (c0df854)
+
+  function rigCamera(target: THREE.Vector3, width: number, height: number): THREE.PerspectiveCamera {
+    const camera = new THREE.PerspectiveCamera(RIG.fov, width / height, 0.25, 240);
+    camera.position.set(target.x, target.y + RIG.distance * Math.cos(RIG.polar), target.z + RIG.distance * Math.sin(RIG.polar));
+    camera.lookAt(target);
+    camera.updateMatrixWorld();
+    camera.updateProjectionMatrix();
+    return camera;
+  }
+
+  function projectedHeightPx(camera: THREE.PerspectiveCamera, sphere: THREE.Sphere, heightPx: number): number {
+    const top = sphere.center.clone().add(new THREE.Vector3(0, sphere.radius, 0)).project(camera);
+    const bottom = sphere.center.clone().add(new THREE.Vector3(0, -sphere.radius, 0)).project(camera);
+    return Math.abs(top.y - bottom.y) * heightPx / 2;
+  }
+
+  it.each(names.map((name, i) => [name, i] as [string, number]))(
+    "%s: target valid and avatar readable at every viewport aspect",
+    (_name, index) => {
+      const world = createWorld();
+      const state = { axis: { x: 0, z: 0 } };
+      const sys = createCharacters(world, {
+        axis: () => state.axis,
+        interactRequested: () => false,
+        paused: () => false,
+        cameraYaw: () => 0,
+      });
+      sys.select(index);
+
+      const spots: Array<{ label: string; x: number; z: number; via: Array<[number, number]> }> = [
+        ...world.result.spawnPoints.map((p, i) => ({ label: `spawn${i}`, x: p.x, z: p.z, via: [] as Array<[number, number]> })),
+        { label: "desk-monitor", x: -8, z: 7, via: [[-6, -1.3], [0, 7]] },
+        { label: "meeting-screen", x: -8, z: -6, via: [[-6, -1.3], [-6, -6]] },
+        { label: "lounge-sofa", x: 9, z: 6, via: [[-6, -1.3], [0, 6]] },
+        { label: "terrace-lookout", x: 9, z: -8, via: [[-6, -1.3], [0, -6]] },
+      ];
+
+      let minY = Infinity;
+      const worstPx: number[] = [Infinity, Infinity, Infinity];
+      for (const spot of spots) {
+        driveTo(sys, state, world.result.spawnPoints[index]!.x, world.result.spawnPoints[index]!.z);
+        for (const [wx, wz] of spot.via) driveTo(sys, state, wx, wz);
+        driveTo(sys, state, spot.x, spot.z);
+        for (let settle = 0; settle < 120; settle++) sys.update(FRAME);
+
+        const target = sys.getCameraTarget!().clone();
+        expect(target.y).toBeGreaterThanOrEqual(1.4);
+        expect(Math.abs(target.x)).toBeLessThanOrEqual(DECK_BOUNDS.halfX + 1.5);
+        expect(Math.abs(target.z)).toBeLessThanOrEqual(DECK_BOUNDS.halfZ + 1.5);
+        expect(insideAnyCollider(target.x, target.z, world.result.colliders, CHARACTER_RADIUS)).toBe(false);
+        minY = Math.min(minY, target.y);
+
+        sys.group.updateMatrixWorld(true);
+        const sphere = new THREE.Box3().setFromObject(sys.group.children[index]!)
+          .getBoundingSphere(new THREE.Sphere());
+        viewports.forEach(([w, h], vi) => {
+          const camera = rigCamera(target, w, h);
+          const px = projectedHeightPx(camera, sphere, h);
+          worstPx[vi] = Math.min(worstPx[vi] ?? Infinity, px);
+        });
+      }
+      console.log(`${names[index]}: min target y=${minY.toFixed(2)} m; projected px at 640x400=${worstPx[0]!.toFixed(0)}, 1280x720=${worstPx[1]!.toFixed(0)}, 3440x1440=${worstPx[2]!.toFixed(0)}`);
+      expect(worstPx[0]!).toBeGreaterThanOrEqual(40); // measured floor at 640×400 (see report)
+      expect(worstPx[1]!).toBeGreaterThanOrEqual(60);
+      expect(worstPx[2]!).toBeGreaterThanOrEqual(60);
+      sys.dispose();
+    },
+  );
 });
