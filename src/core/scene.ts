@@ -33,7 +33,8 @@ export function createStage(canvas: HTMLCanvasElement, mode: QualityMode = "high
   // upper band #afbdda..#dddae6. Kept out of fog influence so the backdrop stays readable.
   scene.background = new THREE.Color(0xd9e3ee);
   scene.fog = new THREE.Fog(0xe3ebf3, 55, 165);
-  const camera = new THREE.PerspectiveCamera(52, 1, 0.25, 240);
+  // fov 56 keeps lateral allies inside the frustum while following one avatar.
+  const camera = new THREE.PerspectiveCamera(56, 1, 0.25, 240);
 
   let dpr = DPR[mode];
 

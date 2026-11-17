@@ -62,7 +62,9 @@ class App {
   private keys = new Set<string>();
   private cameraYaw = 0;
   private cameraPolar = 1.02;
-  private cameraDistance = 11;
+  // 14 m keeps the whole four-character group inside the frustum at the
+  // orbit extremes; measured with src/gameplay/group.test.ts.
+  private cameraDistance = 14;
   private cameraTarget = new THREE.Vector3(0, 1.2, 0);
   private drag: { x: number; y: number } | null = null;
   private frameClock = 0;
