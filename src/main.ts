@@ -252,6 +252,12 @@ class App {
   }
 
   /** Read-only view used by the QA harness and the stats panel. */
+  /** Active character position, for on-screen-control checks. */
+  characterPosition(): { x: number; z: number } | null {
+    const position = this.characters?.getActivePosition();
+    return position ? { x: position.x, z: position.z } : null;
+  }
+
   debug(): { activeIndex: number; position: { x: number; y: number; z: number }; nearestAnchor: string | null; state: string | null } {
     const position = this.characters?.getActivePosition() ?? new THREE.Vector3();
     return {
@@ -387,6 +393,13 @@ class App {
     });
     window.addEventListener("kayangan:pause", () => this.togglePause());
     window.addEventListener("kayangan:restart", () => this.restart());
+    window.addEventListener("kayangan:move", (event) => {
+      const detail = (event as CustomEvent<{ x: number; z: number }>).detail ?? { x: 0, z: 0 };
+      this.characters?.setMoveAxis?.(detail.x, detail.z);
+    });
+    window.addEventListener("kayangan:interact", (event) => {
+      this.interactHeld = (event as CustomEvent<{ held: boolean }>).detail?.held ?? false;
+    });
     window.addEventListener("kayangan:quality", (event) => {
       this.setQuality((event as CustomEvent<string>).detail === "low" ? "low" : "high");
     });
@@ -595,7 +608,13 @@ declare global {
       pause(paused: boolean): void;
       errors(): string[];
       metrics(): Record<string, number | null>;
-      debug(): { activeIndex: number; position: { x: number; y: number; z: number }; nearestAnchor: string | null; state: string | null };
+      /** Active character position, for on-screen-control checks. */
+  characterPosition(): { x: number; z: number } | null {
+    const position = this.characters?.getActivePosition();
+    return position ? { x: position.x, z: position.z } : null;
+  }
+
+  debug(): { activeIndex: number; position: { x: number; y: number; z: number }; nearestAnchor: string | null; state: string | null };
       setQuality(mode: QualityMode): void;
       key(code: string, down: boolean): void;
       walkTo(id: string): Promise<string>;
@@ -616,6 +635,7 @@ window.KAYANGAN = {
   errors: () => app.getErrors(),
   metrics: () => app.meter.snapshot() as unknown as Record<string, number | null>,
   debug: () => app.debug(),
+  charactersPosition: () => app.characterPosition(),
   setQuality: (mode) => app.setQuality(mode),
   walkTo: (id) => app.walkTo(id),
   camera: () => app.camera(),

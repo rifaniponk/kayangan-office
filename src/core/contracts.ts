@@ -72,6 +72,8 @@ export interface CharacterSystem {
   getActivePosition(): THREE.Vector3;
   /** Optional camera anchor; the app falls back to getActivePosition(). */
   getCameraTarget?(): THREE.Vector3;
+  /** On-screen movement axis (camera-relative, unit length). */
+  setMoveAxis?(x: number, z: number): void;
   /** Nearest interactable within its radius, or null. */
   getNearestInteractable?(): Interactable | null;
   /** True when the active character just changed world state. */

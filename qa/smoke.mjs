@@ -101,6 +101,25 @@ const report = await runPage(
     const terraceToast = await session.evaluate("document.getElementById('toast').textContent");
     push("terrace lookout works", terraceWalk.status.includes("arrived") && String(terraceToast).length > 0, `${terraceWalk.status} blocked=${terraceWalk.trace.filter((t) => t.blocked).length} / ${terraceToast}`);
 
+    // On-screen movement pad drives the same path as WASD.
+    const beforePad = JSON.parse(await session.evaluate("JSON.stringify(window.KAYANGAN.debug ? window.KAYANGAN.debug() : {})"));
+    const padPos = await session.evaluate("JSON.stringify(window.KAYANGAN.charactersPosition?.() ?? null)");
+    const padBefore = padPos === null ? null : JSON.parse(padPos);
+    await session.evaluate(
+      "(() => { const b = document.querySelector('#dpad button[data-dir=\"right\"]'); b.dispatchEvent(new PointerEvent('pointerdown', { pointerId: 1, bubbles: true, cancelable: true })); })()",
+    );
+    await wait(1200);
+    await session.evaluate(
+      "(() => { const b = document.querySelector('#dpad button[data-dir=\"right\"]'); b.dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, bubbles: true, cancelable: true })); })()",
+    );
+    await wait(200);
+    const padAfter = JSON.parse(await session.evaluate("JSON.stringify(window.KAYANGAN.charactersPosition?.() ?? null)"));
+    push(
+      "on-screen pad moves the character",
+      padBefore !== null && padAfter !== null && padAfter.x - padBefore.x > 1.5,
+      `x ${padBefore?.x?.toFixed(2)} -> ${padAfter?.x?.toFixed(2)}`,
+    );
+
     // Camera rig responds to drag and wheel within the safe limits.
     const beforeCam = JSON.parse(await session.evaluate("JSON.stringify(window.KAYANGAN.camera())"));
     await session.evaluate(
@@ -121,6 +140,20 @@ const report = await runPage(
       "wheel zooms within the clamp",
       Math.abs(zoomed.distance - zoomBefore) > 0.4 && zoomed.distance >= 5 && zoomed.distance <= 26,
       `distance ${zoomBefore.toFixed(2)} -> ${zoomed.distance.toFixed(2)}`,
+    );
+
+    // On-screen Interact button activates the nearest anchor.
+    const padInteract = await session.runAsync("window.KAYANGAN.walkTo('desk-monitor')").then((r) => r.value);
+    await session.evaluate(
+      "(() => { const b = document.getElementById('interact-button'); b.dispatchEvent(new PointerEvent('pointerdown', { pointerId: 1, bubbles: true })); b.dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, bubbles: true })); })()",
+    );
+    await wait(900);
+    const padToast = await session.evaluate("document.getElementById('toast').textContent");
+    const padState = await session.evaluate("window.KAYANGAN.debug().state");
+    push(
+      "on-screen Interact button activates the zone",
+      padInteract.includes("arrived") && String(padToast).length > 0 && padState === "interact",
+      `${padInteract} / toast=${String(padToast).slice(0, 40)} / state=${padState}`,
     );
 
     // Pause keeps positions still; resume continues.

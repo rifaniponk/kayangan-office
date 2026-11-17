@@ -93,6 +93,8 @@ export function createOverlay(): Overlay {
   function setPlaying(playing: boolean): void {
     boot.classList.toggle("hidden", playing);
     hud.classList.toggle("hidden", !playing);
+    document.getElementById("dpad")?.classList.toggle("hidden", !playing);
+    document.getElementById("interact-button")?.classList.toggle("hidden", !playing);
   }
 
   function setPaused(paused: boolean): void {
@@ -151,6 +153,47 @@ export function createOverlay(): Overlay {
       window.dispatchEvent(new CustomEvent("kayangan:select", { detail: index }));
     });
   });
+
+  // On-screen movement pad: pointer/touch friendly, mirrors WASD.
+  const dpad = q<HTMLDivElement>("dpad");
+  const axes: Record<string, { x: number; z: number }> = {
+    forward: { x: 0, z: -1 },
+    back: { x: 0, z: 1 },
+    left: { x: -1, z: 0 },
+    right: { x: 1, z: 0 },
+  };
+  dpad.querySelectorAll<HTMLButtonElement>("button").forEach((button) => {
+    const axis = axes[button.dataset.dir ?? ""] ?? { x: 0, z: 0 };
+    const send = (held: boolean) =>
+      window.dispatchEvent(
+        new CustomEvent("kayangan:move", { detail: held ? axis : { x: 0, z: 0 } }),
+      );
+    button.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      // Synthetic pointer events (QA harness) have no active pointer to capture.
+      try {
+        button.setPointerCapture(event.pointerId);
+      } catch {
+        /* ignore */
+      }
+      send(true);
+    });
+    const release = () => send(false);
+    button.addEventListener("pointerup", release);
+    button.addEventListener("pointercancel", release);
+    button.addEventListener("pointerleave", release);
+  });
+
+  const interactButton = q<HTMLButtonElement>("interact-button");
+  interactButton.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    window.dispatchEvent(new CustomEvent("kayangan:interact", { detail: { held: true } }));
+  });
+  const releaseInteract = () =>
+    window.dispatchEvent(new CustomEvent("kayangan:interact", { detail: { held: false } }));
+  interactButton.addEventListener("pointerup", releaseInteract);
+  interactButton.addEventListener("pointerleave", releaseInteract);
+  interactButton.addEventListener("pointercancel", releaseInteract);
 
   pauseButton.addEventListener("click", () => window.dispatchEvent(new Event("kayangan:pause")));
   restartButton.addEventListener("click", () => window.dispatchEvent(new Event("kayangan:restart")));

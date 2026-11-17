@@ -125,3 +125,48 @@ button.primary { background: var(--bronze); border-color: #d8a670; font-weight: 
   .hud, .stats, .toast { right: 12px; width: min(240px, calc(100vw - 24px)); }
   .toolbar { left: 12px; bottom: 12px; }
 }
+
+/* On-screen movement pad: large touch targets, keyboard-independent. */
+.dpad {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, 56px);
+  grid-template-rows: repeat(3, 56px);
+  gap: 6px;
+}
+.dpad button {
+  min-width: 56px;
+  min-height: 56px;
+  font-size: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(238, 229, 214, 0.35);
+  background: rgba(24, 22, 20, 0.55);
+  color: #efe6d8;
+  touch-action: none;
+}
+.dpad button:nth-child(1) { grid-column: 2; grid-row: 1; }
+.dpad button:nth-child(2) { grid-column: 1; grid-row: 2; }
+.dpad button:nth-child(3) { grid-column: 3; grid-row: 2; }
+.dpad button:nth-child(4) { grid-column: 2; grid-row: 3; }
+.dpad button:active { background: rgba(176, 122, 63, 0.75); }
+
+.interact {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  min-width: 120px;
+  min-height: 56px;
+  border-radius: 12px;
+  border: 1px solid rgba(238, 229, 214, 0.35);
+  background: rgba(47, 125, 120, 0.75);
+  color: #f4ece1;
+  touch-action: none;
+}
+.interact:active { background: rgba(47, 125, 120, 1); }
+
+@media (max-width: 720px) {
+  .dpad { grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(3, 48px); }
+  .dpad button { min-width: 48px; min-height: 48px; }
+}
