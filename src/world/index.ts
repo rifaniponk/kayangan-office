@@ -131,10 +131,10 @@ export function createWorld(): World {
   });
 
   const interactables: Interactable[] = [
-    anchor("desk-monitor", "Shared desk monitor", -8, 7, 1.7),
+    anchor("desk-monitor", "Shared desk monitor", -8, 7, 2.2),
     anchor("meeting-screen", "Meeting display", -8, -6, 1.5),
     anchor("lounge-sofa", "Lounge sofa", 9, 6, 1.2),
-    anchor("terrace-lookout", "Terrace lookout", 9, -8, 1.4),
+    anchor("terrace-lookout", "Terrace lookout", 9, -8, 1.5),
   ];
 
   const result: WorldResult = {
