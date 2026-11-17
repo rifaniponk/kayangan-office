@@ -483,7 +483,7 @@ class App {
    */
   private static readonly WAYPOINTS: Record<string, { x: number; z: number } | undefined> = {
     "terrace-lookout": { x: 4.9, z: -2.5 },
-    "meeting-screen": { x: 4.9, z: -2.0 },
+    "meeting-screen": { x: -6.0, z: -1.4 },
     "lounge-sofa": { x: 6.5, z: 4.4 },
     "desk-monitor": { x: -5.0, z: 4.0 },
   };
