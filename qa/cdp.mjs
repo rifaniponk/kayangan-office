@@ -48,6 +48,12 @@ export function launchChrome(port, url, extraArgs = []) {
     "--remote-debugging-address=127.0.0.1",
     "--window-size=1920,1080",
     "--hide-scrollbars",
+    // Headless pages are treated as occluded, which throttles rAF and makes
+    // frame-rate measurement meaningless.
+    "--disable-backgrounding-occluded-windows",
+    "--disable-renderer-backgrounding",
+    "--disable-background-timer-throttling",
+    "--disable-features=CalculateNativeWinOcclusion",
     ...extraArgs,
     "about:blank",
   ];
