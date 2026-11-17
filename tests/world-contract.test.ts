@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as THREE from "three";
 import { createWorld } from "../src/world/index.js";
+import { auditWalkability } from "../src/world/walkable.js";
 import { CHARACTER_IDS } from "../src/core/contracts.js";
 
 const DECK = { halfX: 18, halfZ: 12 };
@@ -48,6 +49,21 @@ describe("world contract", () => {
     }
     for (const x of [-AISLE_HALF, AISLE_HALF]) {
       expect(overlaps(x, 0, world.result.colliders, RADIUS)).toBe(false);
+    }
+  });
+
+  it("passes Agent A's walkability audit end to end", () => {
+    const report = auditWalkability(
+      world.result.colliders,
+      world.result.spawnPoints.map((point) => ({ x: point.x, z: point.z })),
+      world.result.interactables,
+    );
+    expect(report.aisleClear).toBe(true);
+    expect(report.doorways.length).toBeGreaterThan(0);
+    for (const doorway of report.doorways) expect(doorway.gapMeters).toBeGreaterThanOrEqual(1.8);
+    expect(report.reachable.length).toBe(16);
+    for (const route of report.reachable) {
+      expect(route.ok, `spawn ${route.spawnIndex} cannot reach ${route.anchorId}`).toBe(true);
     }
   });
 

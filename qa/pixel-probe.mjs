@@ -5,9 +5,8 @@
  *
  * Usage: node qa/pixel-probe.mjs design/kayangan-office-concept-v2.png [grid]
  */
-import { readFile } from "node:fs/promises";
 import { basename } from "node:path";
-import { runPage, serveHtml } from "./cdp.mjs";
+import { runPage, servePair } from "./cdp.mjs";
 
 const target = process.argv[2];
 const grid = Number(process.argv[3] ?? 8);
@@ -16,19 +15,16 @@ if (!target) {
   process.exit(1);
 }
 
-const buffer = await readFile(target);
-const mime = target.endsWith(".webp") ? "image/webp" : "image/png";
-const dataUrl = `data:${mime};base64,${buffer.toString("base64")}`;
-
-const html = `<!doctype html><meta charset="utf-8"><body><img id="i" src="${dataUrl}"></body>`;
+const mime = target.endsWith(".webp") ? "image/webp" : target.endsWith(".jpg") ? "image/jpeg" : "image/png";
 const pagePort = 9441;
 const debugPort = Number(process.env.KAYANGAN_DEBUG_PORT ?? 9431);
-const close = await serveHtml(pagePort, html);
+const site = await servePair(pagePort, `<!doctype html><meta charset="utf-8"><body><img id="i" src="__ASSET__"></body>`, target, mime);
 
 const report = await runPage(
-  { port: debugPort, url: `http://127.0.0.1:${pagePort}/`, timeoutMs: 45_000 },
-  async (session) =>
-    session.evaluate(
+  { port: debugPort, url: site.url, timeoutMs: 45_000 },
+  async (session) => {
+    await session.waitFor("#i");
+    return session.evaluate(
       `(() => {
         const img = document.getElementById('i');
         const canvas = document.createElement('canvas');
@@ -70,8 +66,9 @@ const report = await runPage(
           tiles,
         });
       })()`,
-    ),
+    );
+  },
 );
 
-await close();
+await site.close();
 console.log(report);

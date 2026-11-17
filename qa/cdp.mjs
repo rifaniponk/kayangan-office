@@ -33,12 +33,15 @@ export async function waitPageTarget(port, timeoutMs = 20_000) {
 }
 
 export function launchChrome(port, url, extraArgs = []) {
-  const profile = process.env.KAYANGAN_PROFILE ?? `${process.cwd()}/.chrome-profile`;
+  // A fresh profile per run: a shared one restores old tabs and QA then reads
+  // the wrong page target.
+  const profile = process.env.KAYANGAN_PROFILE ?? `${process.cwd()}/.chrome-profile-${port}`;
   const args = [
     "--headless=new",
     "--no-sandbox",
     "--no-first-run",
     "--no-default-browser-check",
+    "--disable-session-crashed-bubble",
     "--disable-dev-shm-usage",
     `--user-data-dir=${profile}`,
     `--remote-debugging-port=${port}`,
@@ -46,7 +49,7 @@ export function launchChrome(port, url, extraArgs = []) {
     "--window-size=1920,1080",
     "--hide-scrollbars",
     ...extraArgs,
-    url,
+    "about:blank",
   ];
   const child = spawn(CHROME, args, { stdio: ["ignore", "pipe", "pipe"] });
   let stderr = "";
@@ -86,6 +89,17 @@ export async function connect(page, port) {
         return message.result;
       });
     },
+    async waitFor(selector = "#viewport", timeoutMs = 20_000) {
+      const deadline = Date.now() + timeoutMs;
+      while (Date.now() < deadline) {
+        const ready = await this.evaluate(
+          `document.readyState === 'complete' && document.querySelector(${JSON.stringify(selector)}) !== null`,
+        );
+        if (ready) return true;
+        await new Promise((resolve) => setTimeout(resolve, 250));
+      }
+      throw new Error(`Page never rendered ${selector} (readyState never completed)`);
+    },
     async evaluate(expression, awaitPromise = false) {
       const result = await this.call("Runtime.evaluate", {
         expression,
@@ -101,6 +115,31 @@ export async function connect(page, port) {
       socket.close();
     },
   };
+}
+
+/**
+ * Serve a file over HTTP so a real browser can decode it and hand pixels back
+ * to us. Data URLs are unreliable for large PNGs, and file:// taints the canvas.
+ */
+/**
+ * Serve the page and its image from ONE origin. A second port would make the
+ * image cross-origin, which taints the canvas and blocks pixel readback.
+ */
+export async function servePair(port, html, filePath, mime) {
+  const { readFile } = await import("node:fs/promises");
+  const body = await readFile(filePath);
+  const server = createServer((request, response) => {
+    if (request.url && request.url.startsWith("/asset")) {
+      response.writeHead(200, { "content-type": mime, "cache-control": "no-store" });
+      response.end(body);
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(html.replace("__ASSET__", `http://127.0.0.1:${port}/asset`));
+  });
+  server.listen(port, "127.0.0.1");
+  await once(server, "listening");
+  return { url: `http://127.0.0.1:${port}/`, close: () => new Promise((resolve) => server.close(resolve)) };
 }
 
 export async function serveHtml(port, html) {
@@ -140,6 +179,8 @@ export async function runPage({ port = 9333, url, args = [], timeoutMs = 60_000 
     session = await connect(page, port);
     await session.call("Runtime.enable");
     await session.call("Log.enable");
+    await session.call("Page.enable");
+    await session.call("Page.navigate", { url });
     return await work(session, getStderr());
   } finally {
     session?.close();

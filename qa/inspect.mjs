@@ -5,9 +5,8 @@
  *
  * Usage: node qa/inspect.mjs <screenshot.png>
  */
-import { readFile } from "node:fs/promises";
 import { basename } from "node:path";
-import { runPage, serveHtml } from "./cdp.mjs";
+import { runPage, servePair } from "./cdp.mjs";
 
 const target = process.argv[2];
 if (!target) {
@@ -15,17 +14,15 @@ if (!target) {
   process.exit(1);
 }
 
-const buffer = await readFile(target);
-const dataUrl = `data:image/png;base64,${buffer.toString("base64")}`;
-const html = `<!doctype html><meta charset="utf-8"><body><img id="i" src="${dataUrl}"></body>`;
 const pagePort = Number(process.env.KAYANGAN_PAGE_PORT ?? 9442);
 const debugPort = Number(process.env.KAYANGAN_DEBUG_PORT ?? 9432);
-const close = await serveHtml(pagePort, html);
+const site = await servePair(pagePort, `<!doctype html><meta charset="utf-8"><body><img id="i" src="__ASSET__"></body>`, target, "image/png");
 
 const report = await runPage(
-  { port: debugPort, url: `http://127.0.0.1:${pagePort}/`, timeoutMs: 40_000 },
-  async (session) =>
-    session.evaluate(
+  { port: debugPort, url: site.url, timeoutMs: 40_000 },
+  async (session) => {
+    await session.waitFor("#i");
+    return session.evaluate(
       `(() => {
         const img = document.getElementById('i');
         const canvas = document.createElement('canvas');
@@ -65,8 +62,9 @@ const report = await runPage(
           luminanceBands: bands,
         });
       })()`,
-    ),
+    );
+  },
 );
 
-await close();
+await site.close();
 console.log(report);
