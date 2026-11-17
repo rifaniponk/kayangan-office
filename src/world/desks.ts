@@ -39,7 +39,7 @@ export function buildChairs(
   const armGeo = geo.box(0.07, 0.34, 0.44);
   const poleGeo = geo.cyl(0.05, 0.05, 0.42, 10);
   const baseGeo = geo.cyl(0.28, 0.3, 0.05, 12);
-  const wheelGeo = geo.cyl(0.06, 0.06, 0.05, 10);
+  const wheelGeo = geo.cyl(0.34, 0.34, 0.04, 14);
 
   const rot = spots.map(([x, z, r]) => [x, z, r] as [number, number, number]);
 
@@ -68,10 +68,7 @@ export function buildChairs(
 
   const wheels: Array<[number, number, number, number]> = [];
   for (const [x, z, r] of rot) {
-    for (let i = 0; i < 3; i++) {
-      const a = r + (i * Math.PI * 2) / 3;
-      wheels.push([x + Math.cos(a) * 0.26, 0.06, z + Math.sin(a) * 0.26, a]);
-    }
+    wheels.push([x, 0.03, z, r]); // hub ring under the pedestal base
   }
   group.add(instance(wheelGeo, kit.bronzeDark, wheels));
 
@@ -84,8 +81,8 @@ export function buildChairs(
 /**
  * Shared desk pods: two rows facing each other, x∈[-14,-4], z∈[2,10].
  * Details: slab top, bronze frame legs, drawers, monitor, keyboard, lamp,
- * cup + books. Monitors/lamps are individual meshes so the monitor
- * interaction can toggle just the pod's screen.
+ * cup + books. Monitor stands/screens/bezels are instanced; the shared
+ * kit.screen material lets the interaction toggle every screen at once.
  */
 export interface DeskZone {
   group: THREE.Group;
@@ -147,29 +144,21 @@ export function buildDesks(kit: MaterialKit, geo: GeoCache): DeskZone {
   const books = instance(bookGeo, kit.wood, bookT);
   group.add(books);
 
-  // Monitors: individual screens so the interaction can toggle them.
-  const screenGeo = geo.box(0.58, 0.36, 0.04);
-  const bezelGeo = geo.box(0.66, 0.44, 0.03);
-  const standGeo = geo.cyl(0.03, 0.09, 0.2, 10);
+  // Monitors: screens and stands are instanced — kit.screen is shared, so
+  // the interaction toggle flips every screen through one material.
   const bezelT: Array<[number, number, number, number]> = [];
-  const screens: THREE.Mesh[] = [];
+  const standT: Array<[number, number, number, number]> = [];
+  const screenT: Array<[number, number, number, number]> = [];
   for (const [x, z, r] of centers) {
     const ux = -Math.sin(r);
     const uz = -Math.cos(r);
     bezelT.push([x - ux * 0.6, 1.12, z - uz * 0.33, r + Math.PI]);
-    const stand = new THREE.Mesh(standGeo, kit.bronzeDark);
-    stand.position.set(x - ux * 0.5, 0.88, z - uz * 0.26);
-    stand.rotation.y = r + Math.PI;
-    stand.castShadow = true;
-    group.add(stand);
-    const screen = new THREE.Mesh(screenGeo, kit.screen);
-    screen.position.set(x - ux * 0.55, 1.12, z - uz * 0.28);
-    screen.rotation.y = r + Math.PI; // screen front faces the seated user
-    screen.castShadow = true;
-    screens.push(screen);
-    group.add(screen);
+    standT.push([x - ux * 0.5, 0.88, z - uz * 0.26, r + Math.PI]);
+    screenT.push([x - ux * 0.55, 1.12, z - uz * 0.28, r + Math.PI]); // front faces the seated user
   }
-  group.add(instance(bezelGeo, kit.bronze, bezelT, true));
+  group.add(instance(geo.box(0.66, 0.44, 0.03), kit.bronze, bezelT, true));
+  group.add(instance(geo.cyl(0.03, 0.09, 0.2, 10), kit.bronzeDark, standT, true));
+  group.add(instance(geo.box(0.58, 0.36, 0.04), kit.screen, screenT, true));
 
   // Desk lamps: bronze arm + warm shade, on the far corner.
   const armGeo = geo.cyl(0.02, 0.02, 0.42, 8);
@@ -192,6 +181,22 @@ export function buildDesks(kit: MaterialKit, geo: GeoCache): DeskZone {
   }
   group.add(instance(geo.sphere(0.07, 8, 6), kit.glow, bulbT));
 
+  // Low bronze planter divider between the two desk rows (pod interior;
+  // aisle-side approach to the anchor stays clear — audit-checked).
+  const divider = new THREE.Mesh(geo.box(1.4, 0.8, 0.5), kit.bronzeDark);
+  divider.position.set(-9.75, 0.4, 5.5);
+  divider.castShadow = true;
+  divider.name = "pod-divider";
+  group.add(divider);
+  colliders.push({ x: -9.75, z: 5.5, width: 1.4, depth: 0.5 });
+  group.add(
+    instance(geo.sphere(0.16, 10, 8), kit.moss, [
+      [-10.2, 0.86, 5.5, 0.4],
+      [-9.75, 0.92, 5.5, 1.6],
+      [-9.3, 0.84, 5.5, 2.9],
+    ], true),
+  );
+
   // Chairs sit between the facing rows.
   const chairSpots: Array<[number, number, number]> = [
     [-11.5, 4.7, Math.PI],
@@ -210,7 +215,6 @@ export function buildDesks(kit: MaterialKit, geo: GeoCache): DeskZone {
       kit.screen.color.set(on ? 0x66d2c2 : 0x22303a);
       kit.screen.emissive.set(on ? 0x2f8a7c : 0x000000);
       kit.screen.emissiveIntensity = on ? 0.85 : 0;
-      screens.forEach((s) => (s.visible = true));
     },
     setQuality(low: boolean) {
       books.count = low ? 4 : bookT.length;
