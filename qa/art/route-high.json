@@ -1,0 +1,94 @@
+{
+  "route": {
+    "routeSeconds": 54,
+    "wallSeconds": 136.9,
+    "averageFps": 18.66,
+    "characters": [
+      "cloud",
+      "automaton",
+      "courier",
+      "guardian"
+    ],
+    "anchorsVisited": [
+      "cloud:desk-monitor:arrived",
+      "cloud:meeting-screen:arrived",
+      "cloud:lounge-sofa:arrived",
+      "cloud:terrace-lookout:arrived",
+      "automaton:desk-monitor:arrived",
+      "automaton:meeting-screen:arrived",
+      "automaton:lounge-sofa:arrived",
+      "automaton:terrace-lookout:arrived",
+      "courier:desk-monitor:arrived",
+      "courier:meeting-screen:arrived",
+      "courier:lounge-sofa:arrived",
+      "courier:terrace-lookout:arrived",
+      "guardian:desk-monitor:arrived",
+      "guardian:meeting-screen:arrived",
+      "guardian:lounge-sofa:arrived",
+      "guardian:terrace-lookout:arrived"
+    ],
+    "interactions": [
+      "cloud:desk",
+      "cloud:meeting",
+      "cloud:lounge",
+      "cloud:terrace",
+      "automaton:desk",
+      "automaton:meeting",
+      "automaton:lounge",
+      "automaton:terrace",
+      "courier:desk",
+      "courier:meeting",
+      "courier:lounge",
+      "courier:terrace",
+      "guardian:desk",
+      "guardian:meeting",
+      "guardian:lounge",
+      "guardian:terrace"
+    ],
+    "blockedSteps": 0,
+    "consoleErrors": [],
+    "metrics": {
+      "frames": 2554,
+      "medianFps": 119.05,
+      "p95FrameMs": 116.7,
+      "maxFrameMs": 133.4,
+      "slowFrames": 1276,
+      "medianCalls": 79,
+      "medianTriangles": 8276,
+      "heapBytes": 6594112,
+      "heapGrowthBytes": 27532
+    },
+    "scene": {
+      "calls": 44,
+      "triangles": 5500
+    },
+    "quality": "high",
+    "browser": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "webgl": "WebGL2"
+  },
+  "heapTrend": {
+    "samples": 207,
+    "firstBytes": 6299248,
+    "lastBytes": 6594112,
+    "peakBytes": 6594112,
+    "deltaBytes": 294864
+  },
+  "post": {
+    "errors": [],
+    "metrics": {
+      "frames": 2556,
+      "medianFps": 119.04761904761904,
+      "p95FrameMs": 116.70000000000437,
+      "maxFrameMs": 133.40000000000873,
+      "slowFrames": 1277,
+      "medianCalls": 79,
+      "medianTriangles": 8276,
+      "heapBytes": 12167665,
+      "heapGrowthBytes": 1079941
+    },
+    "restarts": "ok"
+  },
+  "browserErrors": [
+    null
+  ]
+}

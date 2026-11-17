@@ -1,0 +1,27 @@
+{
+  "quality": "low",
+  "routeSeconds": 54,
+  "wallSeconds": 123.1,
+  "averageFps": 29.1,
+  "frames": 3582,
+  "medianFps": 119.05,
+  "p95FrameMs": 83.3,
+  "maxFrameMs": 100,
+  "slowFrames": 1790,
+  "medianCalls": 78,
+  "medianTriangles": 6932,
+  "heapTrend": {
+    "samples": 205,
+    "firstBytes": 6216619,
+    "lastBytes": 6471436,
+    "peakBytes": 6471436,
+    "deltaBytes": 254817
+  },
+  "anchorsVisited": 16,
+  "interactions": 16,
+  "consoleErrors": [],
+  "browserErrors": [
+    null
+  ],
+  "frame": "/home/rifan/project/kayangan-office/qa/art/route-low-frame.png"
+}

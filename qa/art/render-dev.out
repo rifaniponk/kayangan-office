@@ -1,0 +1,27 @@
+{
+  "url": "http://127.0.0.1:5173/?autoplay=1",
+  "quality": "high",
+  "screenshot": "/home/rifan/project/kayangan-office/qa/art/world.png",
+  "scene": {
+    "errors": [],
+    "metrics": {
+      "frames": 82,
+      "medianFps": 59.880239520958085,
+      "p95FrameMs": 116.79999999999995,
+      "maxFrameMs": 549.9999999999999,
+      "slowFrames": 39,
+      "medianCalls": 92,
+      "medianTriangles": 8788,
+      "heapBytes": 11542699,
+      "heapGrowthBytes": 3877121
+    },
+    "canvas": {
+      "w": 1920,
+      "h": 937
+    }
+  },
+  "browserErrors": [
+    null
+  ],
+  "chromeStderr": "[4695:4695:1117/153338.305921:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/rifan/.config/google-chrome/Crash Reports/settings.dat: Read-only file system (30)\n[4695:4695:1117/153338.305988:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/rifan/.config/google-chrome/Crash Reports/settings.dat: Read-only file system (30)\n[4695:4714:1117/"
+}

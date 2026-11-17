@@ -1,0 +1,27 @@
+{
+  "url": "http://127.0.0.1:4173/?autoplay=1",
+  "quality": "high",
+  "screenshot": "/home/rifan/project/kayangan-office/qa/art/gameplay.png",
+  "scene": {
+    "errors": [],
+    "metrics": {
+      "frames": 92,
+      "medianFps": 59.880239520958085,
+      "p95FrameMs": 133.4000000000001,
+      "maxFrameMs": 549.9999999999999,
+      "slowFrames": 44,
+      "medianCalls": 92,
+      "medianTriangles": 8788,
+      "heapBytes": 10815206,
+      "heapGrowthBytes": 2258513
+    },
+    "canvas": {
+      "w": 1920,
+      "h": 937
+    }
+  },
+  "browserErrors": [
+    null
+  ],
+  "chromeStderr": "[68:68:1117/165146.839279:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/rifan/.config/google-chrome/Crash Reports/settings.dat: Read-only file system (30)\n[68:68:1117/165146.839341:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/rifan/.config/google-chrome/Crash Reports/settings.dat: Read-only file system (30)\n[68:87:1117/165146.85286"
+}

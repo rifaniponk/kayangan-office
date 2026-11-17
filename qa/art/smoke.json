@@ -1,0 +1,110 @@
+{
+  "url": "http://127.0.0.1:4173/?autoplay=0",
+  "quality": "high",
+  "checks": [
+    {
+      "check": "play button starts the game",
+      "pass": true,
+      "detail": "activeIndex=0"
+    },
+    {
+      "check": "key 2 selects Automaton",
+      "pass": true,
+      "detail": "{\"x\":-6,\"y\":0,\"z\":-1.5}"
+    },
+    {
+      "check": "key 1 restores Cloud at its own position",
+      "pass": true,
+      "detail": "{\"x\":-3,\"y\":0,\"z\":6}"
+    },
+    {
+      "check": "D moves the active character",
+      "pass": true,
+      "detail": "-3.00 -> 1.64"
+    },
+    {
+      "check": "deck edge stops the character",
+      "pass": true,
+      "detail": "{\"x\":-4.281009931688704,\"y\":0,\"z\":11.1}"
+    },
+    {
+      "check": "walks to the desk anchor and sees the prompt",
+      "pass": true,
+      "detail": "desk-monitor:arrived:2.20 / prompt=desk-monitor"
+    },
+    {
+      "check": "E activates the desk zone",
+      "pass": true,
+      "detail": "Shared desk monitor — Monitor on — dashboard shows the Kayangan launch roadmap. / state=interact"
+    },
+    {
+      "check": "meeting room display changes",
+      "pass": true,
+      "detail": "meeting-screen:arrived blocked=0 / Meeting display — Display: team chart — velocity bars rising."
+    },
+    {
+      "check": "lounge sit/emote works",
+      "pass": true,
+      "detail": "lounge-sofa:arrived blocked=0 / Lounge sofa — Settling into the teal sofa — cushions compress."
+    },
+    {
+      "check": "terrace lookout works",
+      "pass": true,
+      "detail": "terrace-lookout:arrived blocked=0 / Terrace lookout — Lookout opened — cloud layers lift for the sky view."
+    },
+    {
+      "check": "on-screen pad moves the character",
+      "pass": true,
+      "detail": "x -3.00 -> 0.89"
+    },
+    {
+      "check": "drag rotates the camera",
+      "pass": true,
+      "detail": "yaw 0.00 -> -1.08, polar 1.02 -> 0.78"
+    },
+    {
+      "check": "wheel zooms within the clamp",
+      "pass": true,
+      "detail": "distance 12.50 -> 8.50"
+    },
+    {
+      "check": "on-screen Interact button activates the zone",
+      "pass": true,
+      "detail": "desk-monitor:arrived:2.06 / toast=Shared desk monitor — Monitor asleep — the pod / state=interact"
+    },
+    {
+      "check": "pause freezes the simulation",
+      "pass": true,
+      "detail": "-6.50 vs -6.50"
+    },
+    {
+      "check": "restart resets to spawn points",
+      "pass": true,
+      "detail": "{\"x\":-3,\"y\":0,\"z\":6}"
+    },
+    {
+      "check": "hidden tab pauses, visible tab resumes",
+      "pass": true,
+      "detail": "frames 2 -> 3 -> 17"
+    },
+    {
+      "check": "browser resize resizes the canvas",
+      "pass": true,
+      "detail": "{\"w\":1920,\"h\":937}"
+    },
+    {
+      "check": "quality selector switches without errors",
+      "pass": true,
+      "detail": "errors 0 -> 0; low canvas width 1920"
+    },
+    {
+      "check": "no runtime console errors",
+      "pass": true,
+      "detail": "none"
+    }
+  ],
+  "browserErrors": [
+    null
+  ],
+  "chromeStderr": "[4791:4791:1117/161847.106203:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/rifan/.config/google-chrome/Crash Reports/settings.dat: Read-only file system (30)\n[4791:4791:1117/161847.106266:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home"
+}
