@@ -21,11 +21,12 @@ const mime = target.endsWith(".webp") ? "image/webp" : "image/png";
 const dataUrl = `data:${mime};base64,${buffer.toString("base64")}`;
 
 const html = `<!doctype html><meta charset="utf-8"><body><img id="i" src="${dataUrl}"></body>`;
-const port = 9431;
-const close = await serveHtml(port, html);
+const pagePort = 9441;
+const debugPort = Number(process.env.KAYANGAN_DEBUG_PORT ?? 9431);
+const close = await serveHtml(pagePort, html);
 
 const report = await runPage(
-  { port, url: `http://127.0.0.1:${port}/`, timeoutMs: 45_000 },
+  { port: debugPort, url: `http://127.0.0.1:${pagePort}/`, timeoutMs: 45_000 },
   async (session) =>
     session.evaluate(
       `(() => {

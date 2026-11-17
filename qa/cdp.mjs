@@ -9,25 +9,38 @@ import { once } from "node:events";
 
 const CHROME = process.env.KAYANGAN_CHROME ?? "google-chrome";
 
-export async function waitJson(url, timeoutMs = 15_000) {
+export async function waitPageTarget(port, timeoutMs = 20_000) {
+  const url = `http://127.0.0.1:${port}/json/list`;
   const deadline = Date.now() + timeoutMs;
+  let last = "no response";
   while (Date.now() < deadline) {
     try {
       const response = await fetch(url);
-      if (response.ok) return await response.json();
-    } catch {
-      /* Chrome is still starting. */
+      if (response.ok) {
+        const list = await response.json();
+        const page = list.find((entry) => entry.type === "page");
+        if (page) return page;
+        last = `targets: ${list.map((entry) => entry.type).join(", ") || "none"}`;
+      } else {
+        last = `http ${response.status}`;
+      }
+    } catch (error) {
+      last = error.message;
     }
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
-  throw new Error(`DevTools endpoint ${url} never came up`);
+  throw new Error(`No page target on port ${port} (${last})`);
 }
 
 export function launchChrome(port, url, extraArgs = []) {
+  const profile = process.env.KAYANGAN_PROFILE ?? `${process.cwd()}/.chrome-profile`;
   const args = [
     "--headless=new",
     "--no-sandbox",
+    "--no-first-run",
+    "--no-default-browser-check",
     "--disable-dev-shm-usage",
+    `--user-data-dir=${profile}`,
     `--remote-debugging-port=${port}`,
     "--remote-debugging-address=127.0.0.1",
     "--window-size=1920,1080",
@@ -118,9 +131,12 @@ export async function runPage({ port = 9333, url, args = [], timeoutMs = 60_000 
   const killed = new Promise((resolve) => setTimeout(resolve, timeoutMs));
   let session = null;
   try {
-    const pages = await waitJson(`http://127.0.0.1:${port}/json/list`);
-    const page = pages.find((entry) => entry.type === "page") ?? pages[0];
-    if (!page) throw new Error(`No page target: ${getStderr()}`);
+    let page;
+    try {
+      page = await waitPageTarget(port);
+    } catch (error) {
+      throw new Error(`${error.message}; chrome stderr: ${getStderr() || "(empty)"}`);
+    }
     session = await connect(page, port);
     await session.call("Runtime.enable");
     await session.call("Log.enable");
