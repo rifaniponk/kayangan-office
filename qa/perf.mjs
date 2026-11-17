@@ -11,6 +11,7 @@ const quality = process.argv[2] ?? "high";
 const seconds = Number(process.argv[3] ?? 12);
 const url = process.argv[4] ?? "http://127.0.0.1:5173/?autoplay=1";
 const viewport = process.argv[5] ? process.argv[5].split("x").map(Number) : null;
+const hide = process.argv[6] ? process.argv[6].split(",") : [];
 
 const result = await runPage(
   { port: 9336, url, timeoutMs: seconds * 1000 + 60_000 },
@@ -25,6 +26,7 @@ const result = await runPage(
       });
     }
     await session.evaluate(`window.KAYANGAN.start('${quality}')`);
+    for (const name of hide) await session.evaluate(`window.KAYANGAN.debugVisible('${name}', false)`);
     await new Promise((resolve) => setTimeout(resolve, 1500));
     const sample = await session.runAsync(`window.KAYANGAN.walkSample(${seconds})`, seconds * 1000 + 30_000);
     const idle = await session.evaluate("JSON.stringify(window.KAYANGAN.metrics())");
@@ -32,6 +34,7 @@ const result = await runPage(
       quality,
       seconds,
       viewport: viewport ? `${viewport[0]}x${viewport[1]}` : "1920x1080",
+      hiddenGroups: hide,
       moving: sample.value,
       idleSnapshot: JSON.parse(idle),
       errors: JSON.parse(await session.evaluate("JSON.stringify(window.KAYANGAN.errors())")),
@@ -45,6 +48,7 @@ console.log(
     {
       quality: parsed.quality,
       viewport: parsed.viewport,
+      hiddenGroups: parsed.hiddenGroups,
       windowSeconds: parsed.moving.wallSeconds,
       averageFpsWhileMoving: parsed.moving.averageFps,
       medianFps: parsed.moving.snapshot.medianFps,

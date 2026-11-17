@@ -219,6 +219,25 @@ class App {
     };
   }
 
+  /** Hide a named world group so QA can attribute per-frame cost. */
+  debugVisible(name: string, visible: boolean): boolean {
+    const group = this.world?.result.group;
+    if (!group) return false;
+    let found = false;
+    group.traverse((node) => {
+      if (node.name === name) {
+        node.visible = visible;
+        found = true;
+      }
+    });
+    return found;
+  }
+
+  /** Names of the top-level world groups, for attribution runs. */
+  debugGroups(): string[] {
+    return (this.world?.result.group.children ?? []).map((node) => node.name || "(unnamed)");
+  }
+
   /** Camera rig state, for QA checks that drag and wheel must move the rig. */
   camera(): { distance: number; yaw: number; polar: number; x: number; y: number; z: number } {
     const position = this.stage?.camera.position ?? new THREE.Vector3();
@@ -555,6 +574,8 @@ declare global {
       walkTrace(id: string): Promise<{ status: string; trace: Array<{ x: number; z: number; blocked: boolean }> }>;
       camera(): { distance: number; yaw: number; polar: number; x: number; y: number; z: number };
       walkSample(seconds: number): Promise<{ wallSeconds: number; averageFps: number; snapshot: Record<string, number | null> }>;
+      debugVisible(name: string, visible: boolean): boolean;
+      debugGroups(): string[];
     };
   }
 }
@@ -571,6 +592,8 @@ window.KAYANGAN = {
   walkTo: (id) => app.walkTo(id),
   camera: () => app.camera(),
   walkSample: (seconds) => app.walkSample(seconds),
+  debugVisible: (name, visible) => app.debugVisible(name, visible),
+  debugGroups: () => app.debugGroups(),
   walkTrace: (id) => app.walkTrace(id),
   key: (code, down) =>
     window.dispatchEvent(
