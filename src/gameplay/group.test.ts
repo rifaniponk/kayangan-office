@@ -12,7 +12,7 @@ import { createCharacters } from "./index.js";
  */
 const NAMES = ["cloud", "automaton", "courier", "guardian"];
 
-const VIEW = { distance: 14, polar: 1.02, fov: 56, near: 0.25, far: 240, aspect: 1280 / 720 };
+const VIEW = { distance: 12.5, polar: 1.02, fov: 58, near: 0.25, far: 240, aspect: 1280 / 720 };
 const FOG_FAR = 165; // core/scene.ts: THREE.Fog(near 55, far 165)
 const FRAME = 1 / 60;
 
