@@ -5,11 +5,12 @@ import { createCharacters, DECK_BOUNDS } from "./index.js";
 import { CHARACTER_RADIUS } from "./collision.js";
 
 function makeWorld() {
+  const activate = vi.fn(() => {});
   const interactables: Interactable[] = [
-    { id: "desk-monitor", label: "Monitor", x: -8, z: 7, radius: 1.6, activate: () => {} },
-    { id: "meeting-screen", label: "Screen", x: -8, z: -6, radius: 1.6, activate: () => {} },
-    { id: "lounge-sofa", label: "Sofa", x: 9, z: 6, radius: 1.6, activate: () => {} },
-    { id: "terrace-lookout", label: "Lookout", x: 9, z: -8, radius: 1.6, activate: () => {} },
+    { id: "desk-monitor", label: "Monitor", x: -8, z: 7, radius: 1.6, activate },
+    { id: "meeting-screen", label: "Screen", x: -8, z: -6, radius: 1.6, activate },
+    { id: "lounge-sofa", label: "Sofa", x: 9, z: 6, radius: 1.6, activate },
+    { id: "terrace-lookout", label: "Lookout", x: 9, z: -8, radius: 1.6, activate },
   ];
   const colliders = [
     { x: -8, z: 7.7, width: 2.4, depth: 1.2 },
@@ -35,7 +36,7 @@ function makeWorld() {
     interact,
     setQuality: () => {},
   };
-  return { world, interact };
+  return { world, activate };
 }
 
 function makeInput(opts: { axis?: () => { x: number; z: number }; held?: () => boolean; paused?: () => boolean; yaw?: () => number }) {
@@ -79,7 +80,7 @@ describe("character system", () => {
   });
 
   it("activates once per key press and reports the nearest anchor", () => {
-    const { world, interact } = makeWorld();
+    const { world, activate } = makeWorld();
     let held = false;
     const ref: { sys: ReturnType<typeof createCharacters> | null } = { sys: null };
     const input = makeInput({
@@ -101,13 +102,13 @@ describe("character system", () => {
     expect(near?.id).toBe("desk-monitor");
     held = true;
     step(sys, 30);
-    expect(interact).toHaveBeenCalledTimes(1);
+    expect(activate).toHaveBeenCalledTimes(1);
     expect(sys.getActiveState?.()).toBe("interact");
     held = false;
     step(sys, 60);
     held = true;
     step(sys, 10);
-    expect(interact).toHaveBeenCalledTimes(2);
+    expect(activate).toHaveBeenCalledTimes(2);
     sys.dispose();
   });
 

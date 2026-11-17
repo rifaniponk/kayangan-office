@@ -108,7 +108,7 @@ export function createCharacters(world: World, input: InputSource): CharacterSys
       nearest = nearestInteractable(pos.x, pos.z, interactables);
       const requested = input.interactRequested();
       if (requested && nearest && !interactHeld) {
-        world.interact(nearest.id);
+        nearest.activate();
         gestureTimer = GESTURE_SECONDS;
         interactHeld = true;
       }
