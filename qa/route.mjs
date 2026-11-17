@@ -19,7 +19,7 @@ const heapPoll =
   "(() => { if (window.gc) window.gc(); return performance.memory ? performance.memory.usedJSHeapSize : null; })()";
 
 const report = await runPage(
-  { port: Number(process.env.KAYANGAN_DEBUG_PORT ?? $9334) + (process.pid % 40), url, args: ["--js-flags=--expose-gc"], timeoutMs: 600_000 },
+  { port: Number(process.env.KAYANGAN_DEBUG_PORT ?? 9334) + (process.pid % 40), url, args: ["--js-flags=--expose-gc"], timeoutMs: 600_000 },
   async (session, stderr) => {
     await session.waitFor();
     await session.evaluate(`window.KAYANGAN && window.KAYANGAN.start('${quality}')`);

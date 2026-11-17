@@ -15,7 +15,7 @@ const quality = process.argv[4] ?? "high";
 const settleMs = Number(process.argv[5] ?? 4000);
 
 const report = await runPage(
-  { port: Number(process.env.KAYANGAN_DEBUG_PORT ?? $9333) + (process.pid % 40), url, timeoutMs: settleMs + 40_000 },
+  { port: Number(process.env.KAYANGAN_DEBUG_PORT ?? 9333) + (process.pid % 40), url, timeoutMs: settleMs + 40_000 },
   async (session, stderr) => {
     await session.waitFor()
     await session.evaluate(`window.KAYANGAN && window.KAYANGAN.start('${quality}')`);

@@ -14,7 +14,7 @@ const viewport = process.argv[5] ? process.argv[5].split("x").map(Number) : null
 const hide = process.argv[6] ? process.argv[6].split(",") : [];
 
 const result = await runPage(
-  { port: Number(process.env.KAYANGAN_DEBUG_PORT ?? $9336) + (process.pid % 40), url, timeoutMs: seconds * 1000 + 60_000 },
+  { port: Number(process.env.KAYANGAN_DEBUG_PORT ?? 9336) + (process.pid % 40), url, timeoutMs: seconds * 1000 + 60_000 },
   async (session) => {
     await session.waitFor();
     if (viewport) {
