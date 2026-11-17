@@ -35,6 +35,17 @@ export function buildIsland(kit: MaterialKit, geo: GeoCache): THREE.Group {
   strips.name = "aisle-strips";
   group.add(strips);
 
+  // Pale concrete stepping tiles breaking up the flat aisle floor.
+  const tiles = instance(geo.box(1.4, 0.014, 1.4), kit.concrete, [
+    [-1.6, 0.008, -7, 0],
+    [1.6, 0.008, -7, 0.2],
+    [-1.6, 0.008, 7, 0.4],
+    [1.6, 0.008, 7, 0],
+  ]);
+  tiles.receiveShadow = true;
+  tiles.name = "aisle-tiles";
+  group.add(tiles);
+
   // Main rock underside: tapered mass below the deck, jittered silhouette.
   const underside = new THREE.CylinderGeometry(17.2, 6.5, 5.4, 26, 3);
   const rand = seededRandom(0x4b1f2e);
