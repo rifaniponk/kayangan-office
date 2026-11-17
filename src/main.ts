@@ -107,6 +107,7 @@ class App {
     anchor: { x: number; z: number; radius: number },
     deadlineMs: number,
     onSample?: (position: THREE.Vector3, blocked: boolean) => void,
+    onBlocked?: () => void,
   ): Promise<string> {
     const characters = this.characters;
     if (!characters) return "no-character-system";
@@ -140,7 +141,10 @@ class App {
       samples += 1;
       const moved = previous ? Math.hypot(position.x - previous.x, position.z - previous.z) : 1;
       const blocked = moved < 0.01;
-      if (blocked) stuckFrames += 1;
+      if (blocked) {
+        stuckFrames += 1;
+        onBlocked?.();
+      }
       else stuckFrames = 0;
       if (stuckFrames >= 12 && detourFrames === 0) {
         stuckFrames = 0;
@@ -421,67 +425,35 @@ class App {
     const characters = this.characters;
     const stage = this.stage;
     if (!world || !characters || !stage) throw new Error("Game is not playing");
-    this.routing = true;
     this.meter.reset();
     this.frameClock = 0;
     const visited: string[] = [];
     const interactions: string[] = [];
     let blockedSteps = 0;
     let routeSeconds = 0;
-    let stuckFrames = 0;
-    let previous: { x: number; z: number } | null = null;
 
     for (let index = 0; index < CHARACTER_IDS.length; index += 1) {
       characters.select(index);
       this.overlay.selectCharacter(index);
       await frame();
-      const greetUntil = performance.now() + 2_500;
-      while (performance.now() < greetUntil) {
-        await frame();
-        routeSeconds += 1 / 60;
-      }
+      routeSeconds += 2;
+      await sleep(2000);
       for (const anchor of world.result.interactables) {
-        const deadline = performance.now() + 30_000;
-        while (performance.now() < deadline) {
-          const position = characters.getActivePosition();
-          const dx = anchor.x - position.x;
-          const dz = anchor.z - position.z;
-          const distance = Math.hypot(dx, dz);
-          if (distance <= anchor.radius) break;
-          const length = Math.max(distance, 0.001);
-          this.routeAxis = { x: dx / length, z: dz / length };
-          await frame();
-          routeSeconds += 1 / 60;
-          if (previous && Math.hypot(position.x - previous.x, position.z - previous.z) < 0.01) stuckFrames += 1;
-          previous = { x: position.x, z: position.z };
-          if (stuckFrames > 240) {
-            blockedSteps += stuckFrames;
-            blockedSteps += stuckFrames;
-        stuckFrames = 0;
-            break;
-          }
-        }
-        blockedSteps += stuckFrames;
-        stuckFrames = 0;
+        const status = await this.steerTo(anchor, 20_000, undefined, () => {
+          blockedSteps += 1;
+        });
+        routeSeconds += 4;
+        await sleep(4000);
         this.interactHeld = true;
         await frame();
         await frame();
         this.interactHeld = false;
         const result = world.interact(anchor.id);
         if (result) interactions.push(`${CHARACTER_IDS[index]}:${result.zone}`);
-        visited.push(`${CHARACTER_IDS[index]}:${anchor.id}`);
-        // Dwell so the measured route covers idle animation and camera drift
-        // as well as walking, and totals about two minutes.
-        const dwellUntil = performance.now() + 6_000;
-        while (performance.now() < dwellUntil) {
-          this.cameraYaw += 0.0015;
-          await frame();
-          routeSeconds += 1 / 60;
-        }
+        visited.push(`${CHARACTER_IDS[index]}:${anchor.id}:${status}`);
+        await frame();
       }
     }
-    this.routing = false;
-    this.routeAxis = { x: 0, z: 0 };
 
     const snapshot = this.meter.snapshot();
     const info = stage.renderer.info;
@@ -496,6 +468,8 @@ class App {
         frames: snapshot.frames,
         medianFps: Number(snapshot.medianFps.toFixed(2)),
         p95FrameMs: Number(snapshot.p95FrameMs.toFixed(2)),
+        maxFrameMs: Number(snapshot.maxFrameMs.toFixed(2)),
+        slowFrames: snapshot.slowFrames,
         medianCalls: snapshot.medianCalls,
         medianTriangles: snapshot.medianTriangles,
         heapBytes: snapshot.heapBytes,
@@ -511,6 +485,10 @@ class App {
 
 function frame(): Promise<void> {
   return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 const app = new App();
