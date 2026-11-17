@@ -77,65 +77,52 @@ node qa/route.mjs  http://127.0.0.1:4173/?autoplay=1 high qa/art/route.json
 
 ## Commit log
 
-Every commit is authored `rifaniponk <rifaniponk@users.noreply.github.com>` (verified with
-`git log --format='%an <%ae>'`; 30 commits at the time of this update).
+Every commit is authored `rifaniponk <rifaniponk@users.noreply.github.com>` (verified per commit
+with `git log --format='%an <%ae>'`). Use `git log --oneline` for the full list; notable hashes:
 
 | Owner | Hash | Slice |
 | --- | --- | --- |
-| C | `9817c73` | repo baseline (design assets + loop doc) |
-| C | `03a1c3d` | Vite/TS/Three scaffold, shared contracts, UI, QA harness |
-| C | `3227e6b` | pixel probe driven through CDP |
-| C | `f46933a` | integration tests (world contract, collision, perf meter) |
-| C | `539fc73` | numeric screenshot inspection |
-| C | `1289eca`, `b2a50be` | status log, README, animation-loop binding + tab resume |
-| C | `95db333` | toast typing fix, `@types/three` |
-| C | `863cdb9`, `d1a1490` | renderer rebuild on quality change, canvas stretch |
-| C | `92ddd09` | browser smoke route (keys, zones, pause, resize, quality) |
-| C | `2fc1c9b` | walkability audit assertion, single-origin QA serving |
-| C | `5172c62` | digit-key selection fix, route through frame loop, interaction narration |
-| C | `2f7b298`, `e70a08d` | simulated walks, hidden-tab frame guard |
-| C | `332f671`, `9305176`, `471f687` | walk trace, prop-sliding steer, polled async evals |
-| C | `2379d9d`, `e9da3f5`, `8dcb709`, `fa5ff5f`, `e0f702a`, `907404b` | two-minute route, concept comparison, camera-control checks |
-| A | `755a9c0` | island shell, deck, rim, lighting, rim colliders, spawns |
-| A | `a58b10e` | four furnished zones, backdrop, zone interactions, quality modes |
-| A | `96dc5ea`, `a617f08`, `53731ba` | rail merging, instancing, tessellation density (273→236 renderable objects) |
-| A | `d2aa0e1` | walkability audit (`src/world/walkable.ts`) |
-| A | `fc26d33`, `bcb0573`, `71846ad`, `a90127b`, `42f150c`, `6aff109`, `a2a9417`, `92a9346` | palette, floor detail, pergola, lamps, doorway frame, lighting balance |
-| B | `95b00a6`, `9921b9d` | four distinct procedural avatars, palette alignment, entry point |
-| B | `7b25126`, `c9e6568`, `4b2c94b`, `602580d` | movement/collision/camera, activation via `Interactable.activate()`, regression tests, interaction narration |
+| C | `9817c73`, `03a1c3d` | baseline, Vite/TS/Three scaffold, shared contracts, UI, QA harness |
+| C | `f46933a`, `539fc73`, `92ddd09`, `2fc1c9b`, `332f671`, `9305176`, `471f687` | tests, numeric screenshot inspection, browser smoke route, walk trace, prop-sliding steer |
+| C | `5172c62`, `2f7b298`, `e70a08d`, `95db333`, `863cdb9`, `d1a1490`, `b2a50be` | digit-key selection, walk direction, hidden-tab guard, toast typing, renderer rebuild, canvas stretch, README |
+| C | `2379d9d`, `e9da3f5`, `8dcb709`, `e0f702a`, `2379d9d`, `b5e64af`, `a3b1def`, `a4cb14c`, `23bfd44`, `52d32ba` | two-minute route, concept comparison, camera checks, wall-clock fps, corridor waypoints |
+| C | `5c01997`, `9a322b6`, `0231481`, `c4a0267`, `627561b` | pid-derived QA ports, probe sky/fog, dt cap, heap sampling |
+| C | `dbb1d56`, `411f12f`, `9ad087a` | on-screen movement pad + Interact button, QA position hook, allocation-free frame loop |
+| A | `755a9c0` … `7c10c79`, `962401f`, `125b643` (integrated by C) | island, zones, backdrop, lighting, walkability audit, doorway bands, cheaper backdrop |
+| B | `95b00a6` … `1903a9d`, `99bbe40`, `a617c88` | four avatars, movement/collision, activation, narration, camera usability, `setMoveAxis`, keyboard-free playability, allocation-free `update()` |
 
 ## Measured results
 
-All numbers below were produced on this machine by the committed QA scripts; nothing is asserted
-without a measurement behind it. Browser: headless Chromium 156 over CDP, viewport 1920x1080.
-There is no GPU on this machine (llvmpipe / SwiftShader software rasterisation), so absolute fps
-is machine-bound; see the attribution table below.
+Numbers produced on this machine by the committed QA scripts. Browser: headless Chromium 156 over
+CDP, viewport 1920x1080. There is no GPU here (llvmpipe / SwiftShader software rasterisation), so
+absolute frame rates are machine-bound; see the attribution table.
 
 | Check | Command | Result |
 | --- | --- | --- |
-| Install / build / types | `npm install --include=dev`, `npm run typecheck`, `npm run build` | clean; 538.7 kB JS (gzip 140.7 kB) |
-| Unit/integration tests | `npm run test` | 16 files, 73 tests, all pass |
-| Play-loop behaviour in Chromium | `node qa/smoke.mjs "http://127.0.0.1:4173/?autoplay=0" high` | **18/18 pass**: play, key selection + retained positions, movement ~3 m/s, rim containment, four zone walks + activations with narration, drag rotate (yaw 0.00 to -2.16), wheel zoom (11.0 to 5.0, clamped 5-26), pause freeze, restart to spawn, hidden/visible tab handling, resize (canvas 1920x937), High/Low switch, 0 console errors |
-| Full route, High | `node qa/route.mjs "http://127.0.0.1:4173/?autoplay=1" high` | wall 351.7 s, 16/16 anchor activations, heap peak 6.4 MB (+0.4 MB over the run), median frame 8.4 ms, average 13.5 fps, p95 183 ms |
-| Full route, Low | `node qa/route.mjs "http://127.0.0.1:4173/?autoplay=1" low` | wall 277.4 s, 16/16 activations, heap peak 17.5 MB (+0.35 MB), average 21.6 fps, p95 117 ms, median 59.9 fps |
-| Scene cost | `node qa/render.mjs ...` | 82 draw calls, 8496 triangles, idle median 59.88 fps, 0 errors; budget test proxy 247 objects <= 250 |
-| Frame sanity | `node qa/inspect.mjs qa/art/world.png` | 475 distinct colours, dark 0.6%, bright 22.2%, bands [0.769, 0.585, 0.592, 0.551, 0.563] |
-| Concept comparison | `node qa/compare.mjs design/kayangan-office-concept-v2.png qa/art/world.png` | meanDelta 45.9 (from 68.8), worst row 83.5 (bottom band hue) |
-| Navigation geometry | `auditWalkability` via `tests/world-contract.test.ts` | aisle clear, doorways 1.90/1.85 m, 16/16 spawn-to-anchor routes reachable, standable distances within every anchor radius |
+| Build / types | `npm run typecheck`, `npm run build` | clean; 540.1 kB JS (gzip 141.1 kB) |
+| Tests | `npm run test` | 21 files, 101 tests, all pass |
+| Browser behaviour | `node qa/smoke.mjs "http://127.0.0.1:4173/?autoplay=0" high` | **20/20 pass**: play, key selection, retained positions, movement ~3 m/s, rim containment, four zone walks + activations with narration, on-screen pad movement (-3.00 to +0.89 m), on-screen Interact button activation, drag rotate, wheel zoom (clamped 5-26 m), pause freeze, restart to spawn (delta 0.00 m), hidden/visible tab, resize, High/Low switch, 0 console errors |
+| Route, High | `node qa/route.mjs ... high` | wall ~170 s (>2 min), 16/16 activations, heap 6.3 MB peak (+0.31 MB), average 17.2 fps, median frame 8.4 ms, p95 133 ms |
+| Route, Low | `node qa/route.mjs ... low` | wall ~144 s, 16/16 activations, heap 6.2 MB (+0.30 MB), average 25.2 fps, p95 100 ms |
+| Heap over movement | `node qa/perf.mjs high 30 ...` (gc forced every 500 ms) | 6.2376 MB to 6.2327 MB, **delta -4.8 KB** — memory flat, no leak |
+| Scene cost | `node qa/render.mjs ...` | 82 draw calls, 8496 triangles, idle median 59.88 fps; budget test proxy 247 objects <= 250 |
+| Frame sanity | `node qa/inspect.mjs qa/art/world.png` | 465 distinct colours, bright 21.2%, bands [0.724, 0.58, 0.585, 0.544, 0.556] — sky-vs-floor spread 0.17 |
+| Concept comparison | `node qa/compare.mjs design/... qa/art/world.png` | meanDelta 47 (from 68.8), worst row 80.3 (bottom-band hue) |
+| Navigation | `tests/world-contract.test.ts` + `src/world/walkable.ts` | aisle clear, doorway standable bands 1.26 m / 1.55 m, 16/16 routes reachable, standable distance within every anchor radius |
 
 ### Frame-rate attribution (no GPU on this machine)
 
 | Measurement | Value |
 | --- | --- |
 | Idle scene, High | median 59.88 fps |
-| Character walking, High, 1920x1080 | average 10.87 fps (before backdrop fix) -> **15.76 fps** (after) |
-| Character walking, Low, 1920x1080 | 17.89 fps |
-| Character walking, Low, viewport 640x400 | 24.01 fps -> fill-rate bound, not draw-call bound |
-| High with world group `backdrop` hidden | 16.01 fps (+47%) -> backdrop overdraw was the dominant cost; fixed in `7c10c79` |
+| Walking, High, 1920x1080 | 10.87 fps before the backdrop fix, **15.5-17.2 fps** after |
+| Walking, Low, 1920x1080 | 17.9-25.2 fps |
+| Walking, Low, 640x400 viewport | 24.0 fps -> fill-rate bound, not draw-call bound |
+| High with `backdrop` hidden | 16.0 fps (+47%) -> backdrop overdraw was the dominant cost; fixed in `7c10c79` |
 
-The acceptance target of 60 fps median cannot be reached on this software-rasterised machine while
-characters move; the honest measured best is ~16 fps moving at High and ~22 fps at Low, with a 60 fps
-median while idle. Memory stays under 18 MB with `gc()`-forced sampling, so there is no leak.
+60 fps median while characters move is not reachable on this software-rasterised machine; the
+measured best is ~17 fps moving at High and ~25 fps at Low, with a 59.9 fps median while idle.
+That limitation is recorded honestly rather than claimed as met.
 
 ## Remaining limitations
 
