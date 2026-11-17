@@ -42,12 +42,14 @@ export function buildLighting(sceneRoot: THREE.Group): Lighting {
       sun.shadow.map = null as unknown as THREE.WebGLRenderTarget;
       sun.shadow.mapSize.set(size, size);
     }
-    // High: island/furniture cast shadows. Low: only the rim casts, cheaper
-    // map. Transparent materials (glass, cloud layers) never cast.
+    // Shadow casters are restricted to tall/large props (userData.casts) so
+    // the per-frame shadow pass stays tiny during movement; the rim always
+    // casts at any quality. Transparent materials never cast.
     sceneRoot.traverse((obj) => {
       if (obj instanceof THREE.Mesh) {
         const mat = obj.material as THREE.Material;
-        obj.castShadow = !mat.transparent && (mode === "high" || obj.name === "rim");
+        obj.castShadow =
+          !mat.transparent && (mode === "high" ? obj.userData.casts === true || obj.name === "rim" : obj.name === "rim");
       }
     });
   };

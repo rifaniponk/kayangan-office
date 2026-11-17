@@ -27,6 +27,7 @@ export function buildTerrace(kit: MaterialKit, geo: GeoCache): TerraceZone {
   top.castShadow = true;
   top.receiveShadow = true;
   group.add(top);
+  top.userData.casts = true;
   const pole = new THREE.Mesh(geo.cyl(0.12, 0.18, 0.72, 12), kit.bronzeDark);
   pole.position.set(9, 0.39, -8);
   pole.castShadow = true;
@@ -77,6 +78,7 @@ export function buildTerrace(kit: MaterialKit, geo: GeoCache): TerraceZone {
   canopy.position.set(9, 2.44, -6);
   canopy.castShadow = true;
   canopy.name = "pergola-canopy";
+  canopy.userData.casts = true;
   group.add(canopy);
 
   // Planters with foliage (instanced, density by quality).

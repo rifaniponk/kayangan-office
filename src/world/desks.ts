@@ -125,7 +125,9 @@ export function buildDesks(kit: MaterialKit, geo: GeoCache): DeskZone {
     cupT.push([x - ux * 0.6, 0.82, z - uz * 0.3, r]); // cup on far edge
     colliders.push({ x, z, width: Math.abs(ux) * 0.9 + Math.abs(uz) * 1.8 + 0.2, depth: Math.abs(ux) * 1.8 + Math.abs(uz) * 0.9 + 0.2 });
   }
-  group.add(instance(slabGeo, kit.stone, slabT, true));
+  const slab = instance(slabGeo, kit.stone, slabT, true);
+  slab.userData.casts = true;
+  group.add(slab);
   group.add(instance(legGeo, kit.bronze, legT, true));
   group.add(instance(drawerGeo, kit.woodDark, drawerT, true));
   group.add(instance(geo.box(0.45, 0.035, 0.18), kit.concrete, kbT));

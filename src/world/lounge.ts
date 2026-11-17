@@ -34,6 +34,7 @@ export function buildLounge(kit: MaterialKit, geo: GeoCache): LoungeZone {
   const base = new THREE.Mesh(geo.box(2.2, 0.42, 0.95), kit.tealDeep);
   base.position.y = 0.21;
   base.castShadow = true;
+  base.userData.casts = true;
   sofa.add(base);
   const back = new THREE.Mesh(geo.box(2.2, 0.6, 0.2), kit.teal);
   back.position.set(0, 0.72, -0.38);
@@ -90,6 +91,7 @@ export function buildLounge(kit: MaterialKit, geo: GeoCache): LoungeZone {
   const frame = new THREE.Mesh(geo.box(1.1, 1.8, 0.42), kit.woodDark);
   frame.position.y = 0.9;
   frame.castShadow = true;
+  frame.userData.casts = true;
   shelf.add(frame);
   shelf.add(
     instance(geo.box(1.0, 0.04, 0.34), kit.wood, [
@@ -119,6 +121,7 @@ export function buildLounge(kit: MaterialKit, geo: GeoCache): LoungeZone {
   shade.position.y = 1.45;
   shade.castShadow = true;
   lamp.add(shade);
+  shade.userData.casts = true;
   group.add(lamp);
   group.add(instance(geo.sphere(0.11, 8, 6), kit.glow, [[12.4, 1.36, 8.8, 0]]));
   colliders.push({ x: 12.4, z: 8.8, width: 0.5, depth: 0.5 });

@@ -101,6 +101,7 @@ export function buildArchitecture(kit: MaterialKit, geo: GeoCache): Architecture
   frame.instanceMatrix.needsUpdate = true;
   frame.castShadow = true;
   frame.name = "door-frame";
+  frame.userData.casts = true;
   group.add(frame);
   colliders.push(
     { x: -7.06, z: -2.0, width: 0.14, depth: 0.3 },

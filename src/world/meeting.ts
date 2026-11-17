@@ -72,6 +72,7 @@ export function buildMeeting(kit: MaterialKit, geo: GeoCache): MeetingZone {
   board.position.set(boardX, 1.35, boardZ);
   board.castShadow = true;
   group.add(board);
+  board.userData.casts = true;
   colliders.push({ x: boardX, z: boardZ, width: 1.3, depth: 0.5 });
 
   // Two deterministic display states: bars (chart) and slanted bars (plan).
