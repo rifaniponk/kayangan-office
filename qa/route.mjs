@@ -57,6 +57,8 @@ console.log(
     {
       quality: report.frame ? quality : quality,
       routeSeconds: route.routeSeconds,
+      wallSeconds: route.wallSeconds,
+      averageFps: route.averageFps,
       frames: route.metrics.frames,
       medianFps: route.metrics.medianFps,
       p95FrameMs: route.metrics.p95FrameMs,

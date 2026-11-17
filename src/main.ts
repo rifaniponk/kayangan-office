@@ -29,6 +29,8 @@ const DECK = { x: 18, z: 12 };
 
 type RouteReport = {
   routeSeconds: number;
+  wallSeconds: number;
+  averageFps: number;
   characters: string[];
   anchorsVisited: string[];
   interactions: string[];
@@ -427,6 +429,7 @@ class App {
     if (!world || !characters || !stage) throw new Error("Game is not playing");
     this.meter.reset();
     this.frameClock = 0;
+    const wallStart = performance.now();
     const visited: string[] = [];
     const interactions: string[] = [];
     let blockedSteps = 0;
@@ -457,8 +460,11 @@ class App {
 
     const snapshot = this.meter.snapshot();
     const info = stage.renderer.info;
+    const wallSeconds = (performance.now() - wallStart) / 1000;
     return {
       routeSeconds,
+      wallSeconds: Number(wallSeconds.toFixed(1)),
+      averageFps: Number((snapshot.frames / Math.max(0.5, wallSeconds)).toFixed(2)),
       characters: [...CHARACTER_IDS],
       anchorsVisited: visited,
       interactions,
