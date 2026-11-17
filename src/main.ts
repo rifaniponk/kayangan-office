@@ -229,7 +229,7 @@ class App {
     // The canvas keeps its last size until a real resize event, so read the
     // viewport itself — that is what the small-window legibility rule needs.
     const height = window.innerHeight || this.stage?.renderer.domElement.clientHeight || 720;
-    const scale = Math.max(0.5, Math.min(1.15, height / 720));
+    const scale = Math.max(0.5, Math.min(1, height / 720));
     return Math.max(CAMERA_BOUNDS.minDistance, Math.min(CAMERA_BOUNDS.maxDistance, this.cameraDistance * scale));
   }
 
