@@ -182,6 +182,30 @@ class App {
     return { status: `${id}:${status}`, trace };
   }
 
+  /** Continuous walking sample: isolates the cost of moving characters. */
+  async walkSample(seconds: number): Promise<{ wallSeconds: number; averageFps: number; snapshot: Record<string, number | null> }> {
+    this.meter.reset();
+    this.frameClock = 0;
+    const wallStart = performance.now();
+    const end = wallStart + seconds * 1000;
+    this.routing = true;
+    let forward = true;
+    while (performance.now() < end) {
+      forward = Math.floor((performance.now() - wallStart) / 2500) % 2 === 0;
+      this.routeAxis = forward ? { x: 1, z: 0 } : { x: -1, z: 0 };
+      await frame();
+    }
+    this.routing = false;
+    this.routeAxis = { x: 0, z: 0 };
+    const wallSeconds = (performance.now() - wallStart) / 1000;
+    const snapshot = this.meter.snapshot();
+    return {
+      wallSeconds: Number(wallSeconds.toFixed(1)),
+      averageFps: Number((snapshot.frames / Math.max(0.5, wallSeconds)).toFixed(2)),
+      snapshot: snapshot as unknown as Record<string, number | null>,
+    };
+  }
+
   /** Camera rig state, for QA checks that drag and wheel must move the rig. */
   camera(): { distance: number; yaw: number; polar: number; x: number; y: number; z: number } {
     const position = this.stage?.camera.position ?? new THREE.Vector3();
@@ -517,6 +541,7 @@ declare global {
       walkTo(id: string): Promise<string>;
       walkTrace(id: string): Promise<{ status: string; trace: Array<{ x: number; z: number; blocked: boolean }> }>;
       camera(): { distance: number; yaw: number; polar: number; x: number; y: number; z: number };
+      walkSample(seconds: number): Promise<{ wallSeconds: number; averageFps: number; snapshot: Record<string, number | null> }>;
     };
   }
 }
@@ -532,6 +557,7 @@ window.KAYANGAN = {
   setQuality: (mode) => app.setQuality(mode),
   walkTo: (id) => app.walkTo(id),
   camera: () => app.camera(),
+  walkSample: (seconds) => app.walkSample(seconds),
   walkTrace: (id) => app.walkTrace(id),
   key: (code, down) =>
     window.dispatchEvent(

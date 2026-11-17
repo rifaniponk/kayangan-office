@@ -14,7 +14,8 @@
     "qa:render": "node qa/render.mjs",
     "qa:route": "node qa/route.mjs",
     "qa:probe": "node qa/pixel-probe.mjs",
-    "qa:inspect": "node qa/inspect.mjs"
+    "qa:inspect": "node qa/inspect.mjs",
+    "qa:perf": "node qa/perf.mjs"
   },
   "dependencies": {
     "@types/three": "^0.187.0",
