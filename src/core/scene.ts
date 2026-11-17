@@ -13,7 +13,7 @@ export type Stage = {
 
 const DPR: Record<QualityMode, number> = { high: 1.5, low: 1.0 };
 
-export function createStage(canvas: HTMLCanvasElement, mode: QualityMode = "high"): Stage {
+function buildRenderer(canvas: HTMLCanvasElement, mode: QualityMode): THREE.WebGLRenderer {
   const renderer = new THREE.WebGLRenderer({
     canvas,
     antialias: mode === "high",
@@ -22,6 +22,11 @@ export function createStage(canvas: HTMLCanvasElement, mode: QualityMode = "high
   renderer.shadowMap.enabled = mode === "high";
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.setClearColor(0x0e1620);
+  return renderer;
+}
+
+export function createStage(canvas: HTMLCanvasElement, mode: QualityMode = "high"): Stage {
+  let renderer = buildRenderer(canvas, mode);
 
   const scene = new THREE.Scene();
   scene.fog = new THREE.Fog(0xdfe8f2, 42, 140);
@@ -39,9 +44,13 @@ export function createStage(canvas: HTMLCanvasElement, mode: QualityMode = "high
   }
 
   function setQuality(next: QualityMode): void {
+    if (next === mode) return;
+    mode = next;
     dpr = DPR[next];
-    renderer.antialias = next === "high";
-    renderer.shadowMap.enabled = next === "high";
+    // Antialias and shadow maps are context-level options, so rebuild the
+    // renderer (and drop the previous context) instead of mutating it.
+    renderer.dispose();
+    renderer = buildRenderer(canvas, next);
     resize();
   }
 

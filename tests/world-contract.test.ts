@@ -91,7 +91,7 @@ describe("world contract", () => {
 
     const tracked = world.result.group.children.length;
     expect(tracked).toBeGreaterThan(0);
-    world.dispose();
+    world.result.dispose();
     expect(world.result.group.children.length).toBe(0);
   });
 
@@ -100,6 +100,6 @@ describe("world contract", () => {
     for (const mode of ["high", "low"] as const) {
       expect(() => fresh.setQuality(mode)).not.toThrow();
     }
-    fresh.dispose();
+    fresh.result.dispose();
   });
 });

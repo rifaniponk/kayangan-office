@@ -42,8 +42,8 @@ type RouteReport = {
 };
 
 class App {
-  private readonly overlay = createOverlay();
-  private readonly meter = new PerfMeter();
+  readonly overlay = createOverlay();
+  readonly meter = new PerfMeter();
   private readonly errors: string[] = [];
   private stage: Stage | null = null;
   private world: World | null = null;
