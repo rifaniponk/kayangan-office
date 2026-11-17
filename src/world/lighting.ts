@@ -36,7 +36,7 @@ export function buildLighting(sceneRoot: THREE.Group): Lighting {
   group.add(sun.target);
 
   const setQuality = (mode: QualityMode): void => {
-    const size = mode === "high" ? 2048 : 1024;
+    const size = mode === "high" ? 1024 : 512; // shadow rasterisation dominates llvmpipe
     if (sun.shadow.mapSize.width !== size) {
       sun.shadow.map?.dispose();
       sun.shadow.map = null as unknown as THREE.WebGLRenderTarget;

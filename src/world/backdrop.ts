@@ -26,21 +26,24 @@ export function buildBackdrop(kit: MaterialKit): Backdrop {
     map = loader.load("/assets/world/cloud-horizon.webp");
     map.colorSpace = THREE.SRGBColorSpace;
     skyMat = new THREE.MeshBasicMaterial({ map, toneMapped: false, color: 0xe2e6ea, fog: false }); // fog:false keeps the horizon art out of the fog wash
-    sky = new THREE.Mesh(new THREE.PlaneGeometry(300, 150), skyMat);
-    sky.position.set(0, 34, -120); // faces +z toward the camera
+    sky = new THREE.Mesh(new THREE.PlaneGeometry(320, 60), skyMat);
+    sky.position.set(0, 18, -120); // horizon band only; upper sky is scene.background
     group.add(sky);
   }
 
-  // Broad translucent cloud layers for depth (no volumetric simulation).
+  // One translucent cloud band for depth: a single quad keeps llvmpipe fill
+  // cost down (three overlapping translucent quads measured ~47% of frame).
   const layers: THREE.Mesh[] = [];
   const layerDefs: Array<[number, number, number, number, number]> = [
     // [x, y, z, width, height]
-    [0, -6.5, -46, 130, 16],
-    [-30, -2.5, -72, 150, 20],
-    [34, 2.5, -92, 170, 22],
+    [0, -4, -60, 120, 12],
   ];
+  const cloudMats: THREE.MeshBasicMaterial[] = [];
   for (const [x, y, z, w, h] of layerDefs) {
-    const layer = new THREE.Mesh(new THREE.PlaneGeometry(w, h), kit.cloud);
+    const mat = kit.cloud.clone();
+    mat.fog = false; // haze stays out of the fog wash
+    cloudMats.push(mat);
+    const layer = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat);
     layer.position.set(x, y, z);
     layer.receiveShadow = false;
     layers.push(layer);
@@ -48,9 +51,9 @@ export function buildBackdrop(kit: MaterialKit): Backdrop {
   }
 
   const setSkyView = (on: boolean): void => {
-    kit.cloud.opacity = on ? 0.28 : 0.17;
+    for (const m of cloudMats) m.opacity = on ? 0.28 : 0.17;
     layers.forEach((l, i) => {
-      l.position.y = layerDefs[i]![1] + (on ? 2.5 + i : 0);
+      l.position.y = layerDefs[i]![1] + (on ? 2.5 : 0);
     });
   };
 
@@ -67,6 +70,7 @@ export function buildBackdrop(kit: MaterialKit): Backdrop {
       skyMat?.dispose();
       sky?.geometry.dispose();
       for (const l of layers) l.geometry.dispose();
+      for (const m of cloudMats) m.dispose();
     },
   };
 }
