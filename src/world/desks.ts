@@ -23,20 +23,23 @@ export function instance(
   return mesh;
 }
 
-/** Office chair: seat, back, arms, pedestal, wheels (5 instanced wheels). */
+/** Office chair: seat, back, arms, pedestal, wheels (3 instanced wheels).
+ * `solid` adds a collider; room chairs inside the meeting pod are decorative
+ * so the room stays walkable (audit-checked). */
 export function buildChairs(
   kit: MaterialKit,
   geo: GeoCache,
   spots: Array<[number, number, number]>, // x, z, rotY
+  solid = true,
 ): { group: THREE.Group; colliders: Collider[] } {
   const group = new THREE.Group();
   group.name = "chairs";
   const seatGeo = geo.box(0.48, 0.09, 0.48);
   const backGeo = geo.box(0.48, 0.55, 0.08);
   const armGeo = geo.box(0.07, 0.34, 0.44);
-  const poleGeo = geo.cyl(0.05, 0.05, 0.42, 6);
-  const baseGeo = geo.cyl(0.28, 0.3, 0.05, 8);
-  const wheelGeo = geo.cyl(0.06, 0.06, 0.05, 6);
+  const poleGeo = geo.cyl(0.05, 0.05, 0.42, 8);
+  const baseGeo = geo.cyl(0.28, 0.3, 0.05, 10);
+  const wheelGeo = geo.cyl(0.06, 0.06, 0.05, 8);
 
   const rot = spots.map(([x, z, r]) => [x, z, r] as [number, number, number]);
 
@@ -65,16 +68,16 @@ export function buildChairs(
 
   const wheels: Array<[number, number, number, number]> = [];
   for (const [x, z, r] of rot) {
-    for (let i = 0; i < 5; i++) {
-      const a = r + (i * Math.PI * 2) / 5;
+    for (let i = 0; i < 3; i++) {
+      const a = r + (i * Math.PI * 2) / 3;
       wheels.push([x + Math.cos(a) * 0.26, 0.06, z + Math.sin(a) * 0.26, a]);
     }
   }
   group.add(instance(wheelGeo, kit.bronzeDark, wheels));
 
-  const colliders = rot.map(
-    ([x, z]): Collider => ({ x, z, width: 0.7, depth: 0.7 }),
-  );
+  const colliders: Collider[] = solid
+    ? rot.map(([x, z]): Collider => ({ x, z, width: 0.7, depth: 0.7 }))
+    : [];
   return { group, colliders };
 }
 
@@ -120,7 +123,7 @@ export function buildDesks(kit: MaterialKit, geo: GeoCache): DeskZone {
     const uz = -Math.cos(r);
     slabT.push([x, 0.75, z, r + Math.PI]); // slab "front" faces the user
     legT.push([x + ux * 0.82, 0.38, z + uz * 0.42, r], [x - ux * 0.82, 0.38, z - uz * 0.42, r]);
-    drawerT.push([x + ux * 0.55, 0.35, z + uz * 0.3, r]); // drawer bank on user side
+    drawerT.push([x + ux * 0.55, 0.46, z + uz * 0.3, r]); // drawer bank on user side, touching slab
     kbT.push([x + ux * 0.28, 0.8, z + uz * 0.14, r]); // keyboard near the user
     cupT.push([x - ux * 0.6, 0.82, z - uz * 0.3, r]); // cup on far edge
     colliders.push({ x, z, width: Math.abs(ux) * 0.9 + Math.abs(uz) * 1.8 + 0.2, depth: Math.abs(ux) * 1.8 + Math.abs(uz) * 0.9 + 0.2 });
@@ -129,7 +132,7 @@ export function buildDesks(kit: MaterialKit, geo: GeoCache): DeskZone {
   group.add(instance(legGeo, kit.bronze, legT, true));
   group.add(instance(drawerGeo, kit.woodDark, drawerT, true));
   group.add(instance(geo.box(0.45, 0.035, 0.18), kit.concrete, kbT));
-  group.add(instance(geo.cyl(0.055, 0.05, 0.12, 8), kit.teal, cupT));
+  group.add(instance(geo.cyl(0.055, 0.05, 0.12, 12), kit.teal, cupT));
 
   // Books: instanced but density-controlled by quality mode.
   const bookGeo = geo.box(0.22, 0.05, 0.16);
@@ -137,7 +140,7 @@ export function buildDesks(kit: MaterialKit, geo: GeoCache): DeskZone {
   for (const [x, z, r] of centers) {
     const ux = -Math.sin(r);
     const uz = -Math.cos(r);
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 2; i++) {
       bookT.push([x - ux * (0.45 + i * 0.02), 0.81 + i * 0.055, z - uz * (0.34 - i * 0.06), r + Math.PI + 0.25 * i]);
     }
   }
@@ -146,11 +149,14 @@ export function buildDesks(kit: MaterialKit, geo: GeoCache): DeskZone {
 
   // Monitors: individual screens so the interaction can toggle them.
   const screenGeo = geo.box(0.58, 0.36, 0.04);
-  const standGeo = geo.cyl(0.03, 0.09, 0.2, 6);
+  const bezelGeo = geo.box(0.66, 0.44, 0.03);
+  const standGeo = geo.cyl(0.03, 0.09, 0.2, 8);
+  const bezelT: Array<[number, number, number, number]> = [];
   const screens: THREE.Mesh[] = [];
   for (const [x, z, r] of centers) {
     const ux = -Math.sin(r);
     const uz = -Math.cos(r);
+    bezelT.push([x - ux * 0.6, 1.12, z - uz * 0.33, r + Math.PI]);
     const stand = new THREE.Mesh(standGeo, kit.bronzeDark);
     stand.position.set(x - ux * 0.5, 0.88, z - uz * 0.26);
     stand.rotation.y = r + Math.PI;
@@ -163,10 +169,11 @@ export function buildDesks(kit: MaterialKit, geo: GeoCache): DeskZone {
     screens.push(screen);
     group.add(screen);
   }
+  group.add(instance(bezelGeo, kit.bronze, bezelT, true));
 
   // Desk lamps: bronze arm + warm shade, on the far corner.
-  const armGeo = geo.cyl(0.02, 0.02, 0.42, 5);
-  const shadeGeo = geo.cyl(0.06, 0.14, 0.12, 7);
+  const armGeo = geo.cyl(0.02, 0.02, 0.42, 6);
+  const shadeGeo = geo.cyl(0.06, 0.14, 0.12, 9);
   for (const [x, z, r] of centers) {
     const ux = -Math.sin(r);
     const uz = -Math.cos(r);
@@ -203,7 +210,7 @@ export function buildDesks(kit: MaterialKit, geo: GeoCache): DeskZone {
       screens.forEach((s) => (s.visible = true));
     },
     setQuality(low: boolean) {
-      books.count = low ? 6 : bookT.length;
+      books.count = low ? 4 : bookT.length;
     },
   };
 }

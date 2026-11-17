@@ -33,18 +33,21 @@ export function buildMeeting(kit: MaterialKit, geo: GeoCache): MeetingZone {
   pedestal.position.set(tableX, 0.38, tableZ);
   pedestal.castShadow = true;
   group.add(pedestal);
-  colliders.push({ x: tableX, z: tableZ, width: 2.6, depth: 1.5 });
+  colliders.push({ x: tableX, z: tableZ, width: 2.4, depth: 1.3 });
 
-  // Four chairs facing the table.
+  // Four chairs at the long ends of the table, facing the tabletop, leaving
+  // walkable corridors on every side (audit-verified).
+  const chairSpots: Array<[number, number]> = [
+    [tableX - 1.3, tableZ + 1.8], // NW
+    [tableX + 1.3, tableZ + 1.8], // NE
+    [tableX - 1.3, tableZ - 1.8], // SW
+    [tableX + 1.3, tableZ - 1.8], // SE
+  ];
   const chairs = buildChairs(
     kit,
     geo,
-    [
-      [tableX, tableZ + 1.35, Math.PI], // north, faces -z
-      [tableX, tableZ - 1.35, 0], // south, faces +z
-      [tableX - 2.2, tableZ, Math.PI / 2], // west, faces +x
-      [tableX + 2.2, tableZ, -Math.PI / 2], // east, faces -x
-    ],
+    chairSpots.map(([x, z]) => [x, z, Math.atan2(tableX - x, tableZ - z)]),
+    false, // decorative chairs keep the room walkable
   );
   group.add(chairs.group);
   colliders.push(...chairs.colliders);
@@ -55,7 +58,7 @@ export function buildMeeting(kit: MaterialKit, geo: GeoCache): MeetingZone {
   const stand = new THREE.Mesh(geo.box(0.08, 1.5, 0.08), kit.bronzeDark);
   stand.position.set(boardX, 0.75, boardZ);
   group.add(stand);
-  const base = new THREE.Mesh(geo.cyl(0.3, 0.34, 0.06, 10), kit.bronzeDark);
+  const base = new THREE.Mesh(geo.cyl(0.3, 0.34, 0.06, 16), kit.bronzeDark);
   base.position.set(boardX, 0.05, boardZ);
   group.add(base);
   const board = new THREE.Mesh(geo.box(1.5, 0.95, 0.05), kit.screenBoard);

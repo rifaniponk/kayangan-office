@@ -93,15 +93,15 @@ export function buildLounge(kit: MaterialKit, geo: GeoCache): LoungeZone {
   shelf.add(frame);
   shelf.add(
     instance(geo.box(1.0, 0.04, 0.34), kit.wood, [
-      [0, 0.45, 0.03, 0],
-      [0, 0.95, 0.03, 0],
-      [0, 1.45, 0.03, 0],
+      [0, 0.45, 0.28, 0],
+      [0, 0.95, 0.28, 0],
+      [0, 1.45, 0.28, 0],
     ]),
   );
   const shelfBooks: Array<[number, number, number, number]> = [];
   for (let row = 0; row < 3; row++) {
-    for (let i = 0; i < 5; i++) {
-      shelfBooks.push([-0.4 + i * 0.18, 0.5 + row * 0.5, 0.03, 0]);
+    for (let i = 0; i < 3; i++) {
+      shelfBooks.push([-0.3 + i * 0.3, 0.5 + row * 0.5, 0.3, 0]);
     }
   }
   const booksMesh = instance(geo.box(0.12, 0.3, 0.22), kit.teal, shelfBooks, true);
@@ -130,7 +130,7 @@ export function buildLounge(kit: MaterialKit, geo: GeoCache): LoungeZone {
       base.scale.set(1, seated ? 0.92 : 1, 1);
     },
     setQuality(low: boolean) {
-      booksMesh.count = low ? 8 : shelfBooks.length;
+      booksMesh.count = low ? 5 : shelfBooks.length;
       cushions.count = low ? 2 : 3;
     },
   };
