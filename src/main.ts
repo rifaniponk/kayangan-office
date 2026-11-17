@@ -177,7 +177,7 @@ class App {
   private inputSource(): InputSource {
     return {
       axis: () => {
-        if (this.routing) return this.routeAxis;
+        if (this.routing && routeAxisHold) return this.routeAxis;
         let x = 0;
         let z = 0;
         for (const code of this.keys) {
@@ -211,9 +211,9 @@ class App {
       if (event.code === "KeyP") this.togglePause();
       if (event.code === "KeyR") this.restart();
       if (event.code === "KeyH") this.overlay.stats.classList.toggle("hidden");
-      const digit = /^[Digit1-4]$/.exec(event.code);
+      const digit = /^Digit([1-4])$/.exec(event.code);
       if (digit) {
-        const index = Number(event.code.slice(5)) - 1;
+        const index = Number(digit[1]) - 1;
         this.characters?.select(index);
         this.overlay.selectCharacter(index);
       }
@@ -328,6 +328,8 @@ class App {
     if (heap) this.meter.recordHeap(heap.usedJSHeapSize);
   }
 
+  private lastInteraction = "";
+
   getErrors(): string[] {
     return [...this.errors];
   }
@@ -340,6 +342,11 @@ class App {
     this.overlay.setPrompt(nearest ? `E · ${nearest.label}` : "Walk near a marked object");
     const id = this.characters?.getActiveCharacter?.();
     if (id) this.overlay.setCharacter(id);
+    const interaction = this.characters?.getInteraction?.();
+    if (interaction && interaction.detail !== this.lastInteraction) {
+      this.lastInteraction = interaction.detail;
+      this.overlay.toast(`${interaction.label} — ${interaction.detail}`);
+    }
     const snapshot = this.meter.snapshot();
     if (!this.overlay.stats.classList.contains("hidden")) {
       this.overlay.setStats({
@@ -361,17 +368,20 @@ class App {
     if (!world || !characters || !stage) throw new Error("Game is not playing");
     this.routing = true;
     this.meter.reset();
+    this.frameClock = 0;
     const visited: string[] = [];
     const interactions: string[] = [];
     let blockedSteps = 0;
     let routeSeconds = 0;
-    const previous = { x: 0, z: 0 };
+    let stuckFrames = 0;
+    let previous: { x: number; z: number } | null = null;
 
     for (let index = 0; index < CHARACTER_IDS.length; index += 1) {
       characters.select(index);
       this.overlay.selectCharacter(index);
+      await frame();
       for (const anchor of world.result.interactables) {
-        const deadline = performance.now() + 26_000;
+        const deadline = performance.now() + 30_000;
         while (performance.now() < deadline) {
           const position = characters.getActivePosition();
           const dx = anchor.x - position.x;
@@ -380,23 +390,28 @@ class App {
           if (distance <= anchor.radius) break;
           const length = Math.max(distance, 0.001);
           this.routeAxis = { x: dx / length, z: dz / length };
-          const step = Math.min(0.05, Math.max(0.1, performance.now() - this.frameClock) / 1000);
-          routeSeconds += step;
-          characters.update(step);
-          this.followCamera(step);
-          this.render(step * 1000);
-          if (Math.hypot(position.x - previous.x, position.z - previous.z) < 0.005) blockedSteps += 1;
-          previous.x = position.x;
-          previous.z = position.z;
+          routeAxisHold = true;
           await frame();
+          routeAxisHold = false;
+          routeSeconds += 1 / 60;
+          if (previous && Math.hypot(position.x - previous.x, position.z - previous.z) < 0.01) stuckFrames += 1;
+          previous = { x: position.x, z: position.z };
+          if (stuckFrames > 240) {
+            blockedSteps += stuckFrames;
+            blockedSteps += stuckFrames;
+        stuckFrames = 0;
+            break;
+          }
         }
-        this.routeInteract = true;
-        characters.update(0.25);
-        this.render(250);
+        blockedSteps += stuckFrames;
+        stuckFrames = 0;
+        this.interactHeld = true;
+        await frame();
+        await frame();
+        this.interactHeld = false;
         const result = world.interact(anchor.id);
         if (result) interactions.push(`${CHARACTER_IDS[index]}:${result.zone}`);
         visited.push(`${CHARACTER_IDS[index]}:${anchor.id}`);
-        this.routeInteract = false;
         await frame();
       }
     }
@@ -411,7 +426,7 @@ class App {
       anchorsVisited: visited,
       interactions,
       blockedSteps,
-      consoleErrors: this.errors,
+      consoleErrors: [...this.errors],
       metrics: {
         frames: snapshot.frames,
         medianFps: Number(snapshot.medianFps.toFixed(2)),
@@ -428,6 +443,7 @@ class App {
     };
   }
 }
+let routeAxisHold = false;
 
 function frame(): Promise<void> {
   return new Promise((resolve) => requestAnimationFrame(() => resolve()));

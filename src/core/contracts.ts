@@ -76,6 +76,8 @@ export interface CharacterSystem {
   getNearestInteractable?(): Interactable | null;
   /** True when the active character just changed world state. */
   getActiveState?(): CharacterState;
+  /** Last interaction the player triggered, so the app can narrate it. */
+  getInteraction?(): WorldInteraction | null;
   getActiveCharacter?(): CharacterId;
   dispose(): void;
 }
