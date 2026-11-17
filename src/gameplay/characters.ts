@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import type { CharacterId, CharacterState, CharacterSystem, InputSource, Interactable, World } from "../core/contracts.js";
+import type { CharacterId, CharacterState, CharacterSystem, InputSource, Interactable, World, WorldInteraction } from "../core/contracts.js";
 import { CHARACTER_IDS } from "../core/contracts.js";
 import { buildAvatar, type Avatar } from "../characters/index.js";
 import {
@@ -49,6 +49,7 @@ export function createCharacters(world: World, input: InputSource): CharacterSys
   let interactHeld = false;
   let nearest: Interactable | null = null;
   let state: CharacterState = "idle";
+  let lastInteraction: WorldInteraction | null = null;
   const cameraTarget = new THREE.Vector3(positions[0]!.x, avatars[0]!.height * 0.8, positions[0]!.z);
   const desiredTarget = new THREE.Vector3();
   let cameraYawSmoothed = 0;
@@ -108,7 +109,7 @@ export function createCharacters(world: World, input: InputSource): CharacterSys
       nearest = nearestInteractable(pos.x, pos.z, interactables);
       const requested = input.interactRequested();
       if (requested && nearest && !interactHeld) {
-        nearest.activate();
+        lastInteraction = world.interact(nearest.id);
         gestureTimer = GESTURE_SECONDS;
         interactHeld = true;
       }
@@ -141,6 +142,9 @@ export function createCharacters(world: World, input: InputSource): CharacterSys
     },
     getActiveCharacter(): CharacterId {
       return activeId();
+    },
+    getInteraction(): WorldInteraction | null {
+      return lastInteraction;
     },
     dispose(): void {
       for (const avatar of avatars) avatar.dispose();

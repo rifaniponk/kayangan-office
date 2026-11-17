@@ -19,7 +19,7 @@ function makeWorld() {
     { x: 9, z: -8.8, width: 1.6, depth: 1.6 },
     { x: -1.6, z: -4, width: 0.2, depth: 12 },
   ];
-  const interact = vi.fn((id: string) => ({ zone: "desk" as const, label: id, detail: id }));
+  const interact = vi.fn((id: string) => ({ zone: "desk" as const, label: id, detail: `${id} activated` }));
   const world: World = {
     result: {
       group: new THREE.Group(),
@@ -36,7 +36,7 @@ function makeWorld() {
     interact,
     setQuality: () => {},
   };
-  return { world, activate };
+  return { world, interact };
 }
 
 function makeInput(opts: { axis?: () => { x: number; z: number }; held?: () => boolean; paused?: () => boolean; yaw?: () => number }) {
@@ -80,7 +80,7 @@ describe("character system", () => {
   });
 
   it("activates once per key press and reports the nearest anchor", () => {
-    const { world, activate } = makeWorld();
+    const { world, interact } = makeWorld();
     let held = false;
     const ref: { sys: ReturnType<typeof createCharacters> | null } = { sys: null };
     const input = makeInput({
@@ -102,13 +102,16 @@ describe("character system", () => {
     expect(near?.id).toBe("desk-monitor");
     held = true;
     step(sys, 30);
-    expect(activate).toHaveBeenCalledTimes(1);
+    expect(interact).toHaveBeenCalledTimes(1);
     expect(sys.getActiveState?.()).toBe("interact");
+    expect(sys.getInteraction?.()).toEqual({ zone: "desk", label: "desk-monitor", detail: "desk-monitor activated" });
     held = false;
     step(sys, 60);
+    expect(sys.getActiveState?.()).toBe("idle");
     held = true;
     step(sys, 10);
-    expect(activate).toHaveBeenCalledTimes(2);
+    expect(interact).toHaveBeenCalledTimes(2);
+    expect(sys.getInteraction?.()?.detail).toBe("desk-monitor activated");
     sys.dispose();
   });
 
