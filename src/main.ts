@@ -56,6 +56,9 @@ class App {
   private routeAxis = { x: 0, z: 0 };
   private routing = false;
   private interactHeld = false;
+  /** Reused per-frame objects: the frame loop must not allocate. */
+  private readonly axisScratch = { x: 0, z: 0 };
+  private readonly cameraWanted = new THREE.Vector3();
   private keys = new Set<string>();
   private cameraYaw = 0;
   private cameraPolar = 1.02;
@@ -301,17 +304,22 @@ class App {
     return {
       axis: () => {
         if (this.routing) return this.routeAxis;
-        let x = 0;
-        let z = 0;
+        const scratch = this.axisScratch;
+        scratch.x = 0;
+        scratch.z = 0;
         for (const code of this.keys) {
           const vector = KEY_MOVE[code];
           if (vector) {
-            x += vector.x;
-            z += vector.z;
+            scratch.x += vector.x;
+            scratch.z += vector.z;
           }
         }
-        const length = Math.hypot(x, z);
-        return length > 0 ? { x: x / length, z: z / length } : { x: 0, z: 0 };
+        const length = Math.hypot(scratch.x, scratch.z);
+        if (length > 0) {
+          scratch.x /= length;
+          scratch.z /= length;
+        }
+        return scratch;
       },
       interactRequested: () => this.interactHeld || this.routing && this.routeInteract,
       paused: () => this.paused || !this.playing || document.hidden,
@@ -415,7 +423,8 @@ class App {
     const position = this.characters?.getActivePosition();
     if (!camera || !position) return;
     const anchor = this.characters?.getCameraTarget?.() ?? position;
-    const wanted = new THREE.Vector3(anchor.x, anchor.y + 1.1, anchor.z);
+    const wanted = this.cameraWanted;
+    wanted.set(anchor.x, anchor.y + 1.1, anchor.z);
     const blend = Math.min(1, delta * 5);
     this.cameraTarget.lerp(wanted, blend);
     const x = this.cameraTarget.x + Math.sin(this.cameraYaw) * this.cameraDistance * Math.sin(this.cameraPolar);

@@ -20,17 +20,17 @@ npm run test                   # vitest: world contract, collision, perf meter
 
 ## Playing
 
-| Action | Input |
-| --- | --- |
-| Move | `W` `A` `S` `D` or arrow keys |
-| Switch character | `1` `2` `3` `4`, or the picker buttons |
-| Interact with nearest marked object | `E` |
-| Orbit camera | drag (left or right button) |
-| Zoom | mouse wheel, clamped 5–26 m |
-| Pause / resume | `P` or the Pause button (also pauses on hidden tab) |
-| Restart run | `R` or the Restart button (everyone returns to their spawn) |
-| Graphics quality | High / Low selector (High: antialias, shadows, DPR ≤ 1.5; Low: no shadows, DPR ≤ 1.0) |
-| Stats panel | `H` or the Stats button |
+| Action | Keyboard | On-screen |
+| --- | --- | --- |
+| Move | `W` `A` `S` `D` or arrow keys | ▲ ▼ ◀ ▶ pad, bottom-left (hold to walk) |
+| Switch character | `1` `2` `3` `4` | picker buttons |
+| Interact with nearest marked object | `E` | Interact button, bottom-right (hold) |
+| Orbit camera | drag (left or right button) | drag on the canvas |
+| Zoom | mouse wheel, clamped 5–26 m | pinch-free: wheel only |
+| Pause / resume | `P` | Pause button (also pauses on hidden tab) |
+| Restart run | `R` | Restart button (everyone returns to their spawn) |
+| Graphics quality | — | High / Low selector (High: antialias, shadows, DPR ≤ 1.5; Low: no shadows, DPR ≤ 1.0) |
+| Stats panel | `H` | Stats button |
 
 Click **Play** to enter the office. The HUD shows the active character, the zone you are standing
 in, and the current interaction prompt.
