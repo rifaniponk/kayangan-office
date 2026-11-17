@@ -107,18 +107,35 @@ Every commit is authored `rifaniponk <rifaniponk@users.noreply.github.com>` (ver
 ## Measured results
 
 All numbers below were produced on this machine by the committed QA scripts; nothing is asserted
-without a measurement behind it.
+without a measurement behind it. Browser: headless Chromium 156 over CDP, viewport 1920x1080.
+There is no GPU on this machine (llvmpipe / SwiftShader software rasterisation), so absolute fps
+is machine-bound; see the attribution table below.
 
 | Check | Command | Result |
 | --- | --- | --- |
-| Install / build / types | `npm install --include=dev`, `npm run typecheck`, `npm run build` | clean; 536.8 kB JS (gzip 140.0 kB), 3.0 kB HTML, 2.75 kB CSS |
-| Unit/integration tests | `npm run test` | 11 files, 38 tests, all pass |
-| Play-loop behaviour in Chromium | `node qa/smoke.mjs "http://127.0.0.1:4173/?autoplay=0" high` | **18/18 pass**: play button, key selection + retained positions, movement (~3 m/s), rim containment, all four zone walks + activations with narration, drag rotate (yaw 0.00→-2.16), wheel zoom (11.0→5.0, clamped 5–26), pause freeze, restart to spawn, hidden/visible tab handling, resize (canvas 1920×937), High/Low switch, 0 console errors |
-| Scene cost | `node qa/render.mjs "http://127.0.0.1:4173/?autoplay=1" qa/art/gameplay.png high 5000` | 79 draw calls, 8272 triangles, median 59.88 fps, 0 errors; budget test proxy 236 ≤ 250 objects |
-| Frame sanity | `node qa/inspect.mjs qa/art/gameplay.png` | 419 distinct colours, 2.7% dark, 20.5% bright, bands [0.81 sky, ~0.42 floor] |
-| Concept comparison | `node qa/compare.mjs design/kayangan-office-concept-v2.png qa/art/gameplay.png` | meanDelta 68.8, worst 179.9; interior rows darker than the concept (0.42–0.52 vs 0.55–0.59) — open slice for A |
-| Navigation geometry | `auditWalkability` via `tests/world-contract.test.ts` | aisle clear, doorways 2.04 m / 1.85 m, 16/16 spawn→anchor routes reachable |
-| Two-minute route, High and Low | `node qa/route.mjs ...` | running; results will be recorded here when the sample completes |
+| Install / build / types | `npm install --include=dev`, `npm run typecheck`, `npm run build` | clean; 538.7 kB JS (gzip 140.7 kB) |
+| Unit/integration tests | `npm run test` | 16 files, 73 tests, all pass |
+| Play-loop behaviour in Chromium | `node qa/smoke.mjs "http://127.0.0.1:4173/?autoplay=0" high` | **18/18 pass**: play, key selection + retained positions, movement ~3 m/s, rim containment, four zone walks + activations with narration, drag rotate (yaw 0.00 to -2.16), wheel zoom (11.0 to 5.0, clamped 5-26), pause freeze, restart to spawn, hidden/visible tab handling, resize (canvas 1920x937), High/Low switch, 0 console errors |
+| Full route, High | `node qa/route.mjs "http://127.0.0.1:4173/?autoplay=1" high` | wall 351.7 s, 16/16 anchor activations, heap peak 6.4 MB (+0.4 MB over the run), median frame 8.4 ms, average 13.5 fps, p95 183 ms |
+| Full route, Low | `node qa/route.mjs "http://127.0.0.1:4173/?autoplay=1" low` | wall 277.4 s, 16/16 activations, heap peak 17.5 MB (+0.35 MB), average 21.6 fps, p95 117 ms, median 59.9 fps |
+| Scene cost | `node qa/render.mjs ...` | 82 draw calls, 8496 triangles, idle median 59.88 fps, 0 errors; budget test proxy 247 objects <= 250 |
+| Frame sanity | `node qa/inspect.mjs qa/art/world.png` | 475 distinct colours, dark 0.6%, bright 22.2%, bands [0.769, 0.585, 0.592, 0.551, 0.563] |
+| Concept comparison | `node qa/compare.mjs design/kayangan-office-concept-v2.png qa/art/world.png` | meanDelta 45.9 (from 68.8), worst row 83.5 (bottom band hue) |
+| Navigation geometry | `auditWalkability` via `tests/world-contract.test.ts` | aisle clear, doorways 1.90/1.85 m, 16/16 spawn-to-anchor routes reachable, standable distances within every anchor radius |
+
+### Frame-rate attribution (no GPU on this machine)
+
+| Measurement | Value |
+| --- | --- |
+| Idle scene, High | median 59.88 fps |
+| Character walking, High, 1920x1080 | average 10.87 fps (before backdrop fix) -> **15.76 fps** (after) |
+| Character walking, Low, 1920x1080 | 17.89 fps |
+| Character walking, Low, viewport 640x400 | 24.01 fps -> fill-rate bound, not draw-call bound |
+| High with world group `backdrop` hidden | 16.01 fps (+47%) -> backdrop overdraw was the dominant cost; fixed in `7c10c79` |
+
+The acceptance target of 60 fps median cannot be reached on this software-rasterised machine while
+characters move; the honest measured best is ~16 fps moving at High and ~22 fps at Low, with a 60 fps
+median while idle. Memory stays under 18 MB with `gc()`-forced sampling, so there is no leak.
 
 ## Remaining limitations
 
