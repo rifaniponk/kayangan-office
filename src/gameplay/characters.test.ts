@@ -161,6 +161,35 @@ describe("character system", () => {
     sys.dispose();
   });
 
+  it("interact state stays readable for ~0.6 s after activation", () => {
+    const { world } = makeWorld();
+    let held = false;
+    const ref: { sys: ReturnType<typeof createCharacters> | null } = { sys: null };
+    const input = makeInput({
+      axis: () => {
+        const pos = ref.sys?.getActivePosition();
+        if (!pos) return { x: 0, z: 0 };
+        const dx = -8 - pos.x;
+        const dz = 6.2 - pos.z;
+        const len = Math.hypot(dx, dz);
+        return len < 0.25 ? { x: 0, z: 0 } : { x: dx / len, z: dz / len };
+      },
+      held: () => held,
+    });
+    const sys = createCharacters(world, input);
+    ref.sys = sys;
+    sys.select(0);
+    step(sys, 900);
+    held = true;
+    step(sys, 10); // press E: activates, gesture starts
+    expect(sys.getActiveState?.()).toBe("interact");
+    step(sys, 36); // 0.6 s later: gesture still readable
+    expect(sys.getActiveState?.()).toBe("interact");
+    step(sys, 30); // 1.1 s later: back to idle
+    expect(sys.getActiveState?.()).toBe("idle");
+    sys.dispose();
+  });
+
   it("movement follows the camera yaw, not world axes", () => {
     const { world } = makeWorld();
     let yaw = Math.PI / 2; // camera faces -x: pressing forward must travel -x
