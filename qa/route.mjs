@@ -6,7 +6,7 @@
  * Requires a server: `npm run preview` (dist/) or `npm run dev`.
  */
 import { mkdir, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { consoleErrors, runPage } from "./cdp.mjs";
 
 const url = process.argv[2] ?? "http://127.0.0.1:4173/?autoplay=1";

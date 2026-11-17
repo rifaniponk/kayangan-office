@@ -102,6 +102,42 @@ class App {
     }
   }
 
+  /** Walks the active character to an anchor using the normal movement path. */
+  async walkTo(id: string): Promise<string> {
+    const world = this.world;
+    const characters = this.characters;
+    const anchor = world?.result.interactables.find((item) => item.id === id);
+    if (!world || !characters || !anchor) return `${id}:unknown`;
+    const deadline = performance.now() + 24_000;
+    while (performance.now() < deadline) {
+      const position = characters.getActivePosition();
+      const dx = anchor.x - position.x;
+      const dz = anchor.z - position.z;
+      const distance = Math.hypot(dx, dz);
+      if (distance <= anchor.radius) return `${id}:arrived:${distance.toFixed(2)}`;
+      const length = Math.max(distance, 0.001);
+      this.routeAxis = { x: dx / length, z: dz / length };
+      const step = Math.min(0.05, Math.max(0.1, performance.now() - this.frameClock) / 1000);
+      characters.update(step);
+      this.followCamera(step);
+      this.render(step * 1000);
+      await frame();
+    }
+    const ended = characters.getActivePosition();
+    return `${id}:timeout:${Math.hypot(anchor.x - ended.x, anchor.z - ended.z).toFixed(2)}`;
+  }
+
+  /** Read-only view used by the QA harness and the stats panel. */
+  debug(): { activeIndex: number; position: { x: number; y: number; z: number }; nearestAnchor: string | null; state: string | null } {
+    const position = this.characters?.getActivePosition() ?? new THREE.Vector3();
+    return {
+      activeIndex: this.characters?.activeIndex ?? -1,
+      position: { x: position.x, y: position.y, z: position.z },
+      nearestAnchor: this.characters?.getNearestInteractable?.()?.id ?? null,
+      state: this.characters?.getActiveState?.() ?? null,
+    };
+  }
+
   restart(): void {
     if (!this.world || !this.stage) return;
     const index = this.characters?.activeIndex ?? 0;
@@ -404,6 +440,10 @@ declare global {
       pause(paused: boolean): void;
       errors(): string[];
       metrics(): Record<string, number | null>;
+      debug(): { activeIndex: number; position: { x: number; y: number; z: number }; nearestAnchor: string | null; state: string | null };
+      setQuality(mode: QualityMode): void;
+      key(code: string, down: boolean): void;
+      walkTo(id: string): Promise<string>;
     };
   }
 }
@@ -415,6 +455,13 @@ window.KAYANGAN = {
   pause: (paused) => app.togglePause(paused),
   errors: () => app.getErrors(),
   metrics: () => app.meter.snapshot() as unknown as Record<string, number | null>,
+  debug: () => app.debug(),
+  setQuality: (mode) => app.setQuality(mode),
+  walkTo: (id) => app.walkTo(id),
+  key: (code, down) =>
+    window.dispatchEvent(
+      new KeyboardEvent(down ? "keydown" : "keyup", { code, bubbles: true }),
+    ),
 };
 
 if (params.get("autoplay") === "1") {
